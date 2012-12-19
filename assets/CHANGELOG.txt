@@ -1,95 +1,103 @@
-Bootstrap-editable change log
+X-editable changelog
 =============================
 
-Version 1.1.4 Sep 25, 2012
-----------------------------
-Enh #40: Added events 'shown' and 'hidden' (@vitalets)
-Bug: Popover position wrong when it is close to screen edge (@vitalets)
-Enh: GetValue api method should return only not-null values (@vitalets)
-Bug: If date not set it's value equals to today (@vitalets)
-Enh #24: Updated to jquery 1.8.2 (@vitalets)
-Enh: Add api method 'submit' to simplify creating new record (@vitalets)
-Enh #39: Add api method 'option' to set one or several options dynamically (@vitalets)
+
+Version 1.3.0 Dec 10, 2012
+----------------------------  
+[enh] added html5 inputs support: password, email, url, tel, number, range (vitalets) 
+[bug #43] fix for bootstrap 2.2.2 (vitalets) 
+[enh #41] 'abstract' class renamed to 'abstractinput' as abstract is reserved word (vitalets)
+[enh #40] 'params' option defined as function overwrites original ajax data instead of appending (vitalets)
+[bug] datepicker: error when click on arrows after clear date (vitalets) 
+[enh] 'hidden' event: added possible value of reason param - 'nochange'. Occurs when form is submitted but value was not changed (vitalets) 
+[enh] 'submit' method changed: error-callback's parameter simplified (vitalets) 
+[enh] 'submit' method changed: now when response 200 OK it does not set pk automatically (vitalets) 
+[enh] 'submit' method changed: removed dataType='json'. Use 'ajaxOptions' to specify dataType if needed (vitalets) 
+[enh] removed default ajax dataType='json'. Use 'ajaxOptions' to specify dataType if needed (vitalets) 
+[enh] select: do not show 'sourceError' in element during autotext execution (vitalets) 
 
 
-Version 1.1.3 Sep 16, 2012
-----------------------------
-Enh #24: Updated to jquery 1.8.1 and bootstrap 2.1.1 (@vitalets)
-Enh: Datepicker updated to last version from eternicode's upstream (@vitalets)
-Enh: Date's default value for 'format' option changed to 'yyyy-mm-dd' (@vitalets)
-Enh #36: DATE: added option 'viewformat' - format for display date, previous 'format' is used when submitting (@vitalets)
-Enh #37: Added event 'render' (@vitalets)
-Enh #34: Clicking outside the popup hides the popup (@vitalets)
-Enh #32: Added methods 'show' and 'hide' to open and close popover manually (@vitalets)
-Bug: Text and textarea are not focused after server validation failed (@vitalets)
-      
-
-Version 1.1.2 Sep 8, 2012
-----------------------------
-Enh #31: Added option 'placeholder' for types 'text' and 'textarea' (@vitalets)
-Enh #30: Added option 'inputclass' to change input's css, default 'span2' (@vitalets)
-Enh #27: Textarea submit by ctrl+enter (@vitalets)
-Bug: Element's content not trimmed when checking for emptytext (@vitalets)
-
-
-Version 1.1.1 Sep 2, 2012
-----------------------------
-Enh: Added event 'init' (@vitalets)
-Enh: Popover shows full error message and re-positioned correctly (@vitalets)
-Bug: Cache for select failed when loading options error occured (@vitalets)
-Enh: Scroll navigation in docs (@vitalets)
-
-
-Version 1.1.0 Aug 26, 2012
-----------------------------
-Enh #23: Added event 'update' (@vitalets)
-Enh: When 'toggle' option defined, no 'editable' css set to element (@vitalets)
-Enh: Smart autotext option for select, loads text only if source defined as object (@vitalets)
-Enh #5: Replace jQuery-ui datepicker with bootstrap-datepicker (@vitalets)
-Enh #22: Select: convert 'source' from native array to object (@vitalets)
-Enh #21: Default value of 'enablefocus' set to false (@vitalets)
-Enh #20: More RESTful: when http status != 200 popover shows responseText (@vitalets)
-Bug #19: Zip opens incorrectly on Mac OS (@vitalets)
+Version 1.2.0 Dec 6, 2012
+----------------------------  
+[enh #36] 'submit' method: added 'ajaxOptions' property to modify ajax request (vitalets)  
+[enh] inputs now internally use 'value2submit' method instead of previous 'value2str' (vitalets)  
+[enh] editableContainer removed from docs (vitalets)  
+[enh] editableContainer: removed 'autohide' option and 'cancel' event. Use 'hidden' event instead (vitalets)  
+[enh] 'hidden' event: added param 'reason' that points to reason caused hiding (vitalets)  
+[enh] 'select' submit by enter (vitalets)  
+[bug #37] fix incorrectly shown datepicker in jquery 1.7.1 + webkit (vitalets)  
+[enh] added url param 'jquery' to run tests in different versions of jquery, e.g. '&jquery=1.7.2' (vitalets)  
+[enh] 'enablefocus' option removed. More efficient to use 'save/hide' events to set focus to any element (vitalets)  
+[enh] 'init' event was added due to removal of render event (vitalets)  
+[enh] 'render' event was removed, use 'display' callback instead (vitalets)  
+[enh] 'checklist' submit value as array, not comma separated string (vitalets)  
+[enh] 'checklist' was refactored: options 'viewseparator', 'limit', 'limitText' are supressed by 'display' callback (vitalets)  
+[enh] new option: 'display' callback. Makes far more flexible rendering value into element's text. (vitalets)  
+[bug] fix typos (atrophic) 
+[enh] all callbacks scope changed to element (vitalets) 
+[enh] new option: 'savenochange' to save or cancel value when it was not changed in form (vitalets) 
+[enh] composite pk can be defined as JSON in data-pk attribute (vitalets) 
+[enh #30] new option 'sourceCache' true|false to disable cache for select (vitalets) 
+[bug #34] inputclass span* broken with fluid bootstrap layout. Classes changed to 'input-*'. (vitalets) 
+[enh] utils now added to $.fn.editableutils instead of $.fn.editableform.utils (vitalets)
+[enh] input types now added to $.fn.editabletypes instead of $.fn.editableform.types (vitalets)
+[enh] playground and tests now use requirejs (vitalets)  
+[bug #27] 'today' button toggle bug in bootstrap-datepicker (vitalets)  
 
 
-Version 1.0.5 Aug 8, 2012
-----------------------------
-Bug #18: In submit method value should be set by getInputValue (@vitalets)
-Enh #17: Show response text in error when HTTP != 200 (@vitalets)
-Enh #16: SELECT: set link text according to value (@vitalets)
-Enh #15: Generate release notes (@vitalets)
-Enh #14: Disable focus management (@vitalets)
-Enh #13: Json in html data-* attributes (@vitalets)
-Bug #12: When text contains escaped html it is processed incorrectly (@vitalets)
-Enh #11: Add to dist all required libs (jquery, bootstrap, jquery-ui + theme) (@vitalets)
-Enh #10: SELECT: cache and share source data between selects (@vitalets)
-Enh #9: Pk function in element context (@vitalets)
-Enh #8: Method to customize text render (@vitalets)
-Enh #7: Add empty value to SELECT list (@vitalets)
-
-
-Version 1.0.4 Aug 2, 2012
-----------------------------
-Enh #1: Trigger popover by click on another element (@vitalets)
-Enh #6: Allow inline source for select (@fdev)
-
-
-Version 1.0.3 Jul 20, 2012
-----------------------------
-Enh #3: Tabbular input without mouse (@vitalets)
-Enh #4: Arrange build on Grunt.js (@vitalets)
-                          
+Version 1.1.1 Nov 30, 2012
+----------------------------   
+[enh] 'showbuttons' option to hide buttons in form (vitalets)  
+[enh] object can be passed in 'option' method to set several options at once (vitalets)  
+[enh #20] toggle editable by 'dblclick' and 'mouseenter' (vitalets)  
+[enh] added 'inputs-ext' directory with sample input 'address'. They will not be concatenated to main files (vitalets)  
+[enh #13] 'onblur' option: to cancel, submit or ignore when user clicks outside the form (vitalets)  
+[enh] 'ajaxOptions' parameter for advanced ajax configuration (vitalets)  
+[enh] 'success' callback can return object to overwrite submitted value (vitalets)  
+       
+       
+Version 1.1.0 Nov 27, 2012
+----------------------------   
+[enh #11] icon cancel changed to 'cross' (tarciozemel)  
+[enh] added support for IE7+ (vitalets)  
+[enh #9] 'name' or 'id' is not required anymore (vitalets)      
+[enh] 'clear' button added in date and dateui (vitalets)      
+[enh] form template changed: added DIV.editable-input, DIV.editable.buttons and $.fn.editableform.buttons (vitalets)      
+[enh] new input type: checklist (vitalets)      
+[enh] updated docs: inputs dropdown menu, global templates section (vitalets)      
                             
-Version 1.0.2 Jul 19, 2012
-----------------------------
-Enh: Close all popovers when openning new one (@vitalets)      
-                     
-                                                              
-Version 1.0.1 Jul 18, 2012
-----------------------------
-Bug: Ajax not sent properly (@vitalets)
 
-
-Version 1.0.0 Jul 18, 2012
+Version 1.0.1 Nov 22, 2012
+----------------------------          
+[enh] contribution guide in README.md (vitalets)   
+[enh #7] 'shown', 'hidden' events added (vitalets)         
+[enh #1] params can be a function to calculate it dynamically (vitalets)         
+[enh #6] do not preventDefault() in click when toggle='manual'. This allows to have clickable links (vitalets)
+[bug #3] should not mark element with unsave css if url is user's function (vitalets)         
+          
+                 
+Version 1.0.0 Nov 19, 2012 
 ----------------------------
-Initial release     
+Initial release. This library is new life of bootstrap-editable (1.1.4) that was strongly refactored and improved.
+Main features:
+- support not only bootstrap but any core library: bootstrap, jquery-ui or pure jquery 
+- different container classes to show form: popover, tooltip, poshytip, etc
+- inline and popup versions 
+- new directory structure and logic in separate js files allowing easy contribution
+                                                                
+It is not fully compatible with bootstrap-editable but has mainly the same interface and api.
+Here list of differences to help you to upgrade your application:
+
+[change] 'toggle' option value can be only click|manual (not toggling element id). In case of 'manual' you should write handler calling 'show' method.
+[change] 'validate' option cannot be defined as object anymore.
+[change] events 'init', 'update', 'shown', 'hidden' removed. Events 'save', 'cancel' added. Event 'render' remains. 
+[change] input's option 'template' renamed to 'tpl' (to exclude conflict with container's template).
+[change] value can be stored internally as object (previously was always string). Useful for date input.
+[change] 'error' callback option is removed. 'success' callback remained.
+[enh] 'source' option in select can be array of structure [{value: 1, text: 'abc'}, {...}]. This allows to keep ordering of items in dropdown list. Previous format is supported for compatibility.
+[enh] api method 'setValue' to set manually value of editable.
+[change] locales directory is excluded from bootstrap-datepicker input. If you need localization you should jus download corresponding file from github.
+[change] date and dateui specific options can be set only via 'datepicker' option in first level of config (previously it was possible to set some options directly in config, e.g. weekStart).
+[change] if 'url' option defined as function - it is used as submit method instead of ajax (previously it was dynamically return url string and ajax occurred anyway)
+
+Also all known bugs of bootstrap-editable were closed.
