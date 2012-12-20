@@ -15,6 +15,10 @@
 */
 class EditableField extends CWidget
 {
+    //note: only most usefull options are on first config level. 
+    
+    // --- start of X-editable options ----
+    
     /**
     * @var CActiveRecord model of attribute to edit.
     */
@@ -27,53 +31,84 @@ class EditableField extends CWidget
     * @var string type of editable widget. Can be 'text', 'textarea', 'select' etc.
     */
     public $type = null;
+    /**
+    * @var string url to submit value
+    */
     public $url = null;
-    public $title = null;
-    public $emptytext = null;
-    public $text = null; //will be used as content
+    /**
+    * @var string text to be shown as element content
+    */
+    public $text = null;
+    /**
+    * @var mixed initial value. If not set - will be take from text
+    */
     public $value = null;
-    public $placement = null;
-    public $inputclass = null;
-    public $autotext = null;
-
-    //for text & textarea
-    public $placeholder = null;
+    /**
+    * @var string placement of popup. Can be 'left', 'top', 'right', 'bottom'
+    */
+    public $placement = 'top';
     
-    //for select
-    public $source = array();
-    public $prepend = null;
+    /**
+    * @var boolean will editable be initially disabled. It means editable plugin will be applied to element anyway.
+    * To disable applying 'editable' to element use 'apply' option
+    */
+    public $disabled = false;
+   
+    //list
+    /**
+    * @var mixed source data for 'select', 'checklist'. Can be url or php array.
+    */
+    public $source = null;
 
-    //for date
-    public $format = null;
+    //date
+    /**
+    * @var string format to send date on server
+    */
+    public $format = 'yyyy-mm-dd';
+    /**
+    * @var string format to display date in element
+    */
     public $viewformat = null;
-    public $language = null;
-    public $weekStart = null;
-    public $startView = null;
 
     //methods
+    /**
+    * @var string a javascript function that will be invoked to validate value.
+    */
     public $validate = null;
-    public $success = null;
-    public $error = null;
-    
-    //events
-    public $onInit = null;
-    public $onUpdate = null;
-    public $onRender = null;
-    public $onShown = null;
-    public $onHidden = null;
 
-    //js options
+    // --- end of X-editable options ----
+    
+    /**
+    * @var array all config options of x-editable
+    */
     public $options = array();
     
-    //html options
+    /**
+    * @var array HTML options of element
+    */
     public $htmlOptions = array();
 
-    //weather to encode text on output
+    /**
+    * @var boolean whether to HTML encode text on output
+    */
     public $encode = true;
+    
+    /**
+    * @var boolean whether to apply 'editable' to element. 
+    * If null will be automatically set to true for safe attributes and false for unsafe.
+    */
+    public $apply = null; 
+    
+    /**
+    * @var string title of popup. If null will be generated automatically from attribute label.
+    * Can have token {label} inside that will be replaced with actual attribute label.
+    */
+    public $title = null;
 
-    //if false text will not be editable, but will be rendered
-    public $enabled = null;
-
+    /**
+    * initialization of widget
+    * 
+    */
     public function init()
     {   
         if (!$this->model) {
@@ -82,15 +117,22 @@ class EditableField extends CWidget
         if (!$this->attribute) {
             throw new CException('Parameter "attribute" should be provided for Editable');
         }
+        
+        //commented to be able to work with virtual attributes
+        //see https://github.com/vitalets/yii-bootstrap-editable/issues/15
+        /*
         if (!$this->model->hasAttribute($this->attribute)) {
             throw new CException('Model "'.get_class($this->model).'" does not have attribute "'.$this->attribute.'"');
-        }        
+        } 
+        */       
  
         parent::init();
-                
+
+        /*
+         try to detect type from metadata if not set                
+        */
         if ($this->type === null) {
             $this->type = 'text';
-            //try detect type from metadata.
             if (array_key_exists($this->attribute, $this->model->tableSchema->columns)) {
                 $dbType = $this->model->tableSchema->columns[$this->attribute]->dbType;
                 if($dbType == 'date' || $dbType == 'datetime') $this->type = 'date';
@@ -99,45 +141,53 @@ class EditableField extends CWidget
         }
 
         /*
-        * unfortunatly datepicker's format does not match Yii locale dateFormat
-        * and we cannot take format from application locale
-        * 
-        * see http://www.unicode.org/reports/tr35/#Date_Format_Patterns
-        * 
+         unfortunatly datepicker's format does not match Yii locale dateFormat
+         and we cannot take format from application locale
+         
+         see http://www.unicode.org/reports/tr35/#Date_Format_Patterns
+         
         if($this->type == 'date' && $this->format === null) {
             $this->format = Yii::app()->locale->getDateFormat();
         }
         */
         
-        /* generate text from model attribute (for all types except 'select'. 
-        *  For select/date autotext will be applied)
+        /* 
+         generate text from model attribute. 
+         For all types except 'select', 'checklist' etc.  For these keep it empty to apply autotext
         */ 
-        if (!strlen($this->text) && $this->type != 'select' && $this->type != 'date') {
+        $keepEmpty = array('select', 'checklist', 'date', 'dateui');
+        if (!strlen($this->text) && !in_array($this->type, $keepEmpty)) {
             $this->text = $this->model->getAttribute($this->attribute);
         }
 
-        //if enabled not defined directly, set it to true only for safe attributes
-        if($this->enabled === null) {
-            $this->enabled = $this->model->isAttributeSafe($this->attribute);
+        //if `apply` not defined directly, set it to true only for safe attributes
+        if($this->apply === null) {
+            $this->apply = $this->model->isAttributeSafe($this->attribute);
         }
         
-        //if not enabled --> just print text        
-        if (!$this->enabled) {
+        //if apply = false --> just print text and return       
+        if (!$this->apply) {
             return;
         }
 
-        //language: use config's value if not defined directly
-        if ($this->language === null && yii::app()->language) {
-            $this->language = yii::app()->language;
-        }
-
-        //normalize url from array if needed
+        //normalize url from array 
         $this->url = CHtml::normalizeUrl($this->url);
 
         //generate title from attribute label
         if ($this->title === null) {
-            //todo: i18n here. Add messages folder to extension
-            $this->title = (($this->type == 'select' || $this->type == 'date') ? Yii::t('editable', 'Select') : Yii::t('editable', 'Enter')) . ' ' . $this->model->getAttributeLabel($this->attribute);
+            $titles = array(
+              'Select' => array('select', 'date'),
+              'Check' => array('checklist')
+            );
+            $title = Yii::t('EditableField.editable', 'Enter');
+            foreach($titles as $t => $types) {
+                if(in_array($this->type, $types)) {
+                   $title = Yii::t('EditableField.editable', $t); 
+                }
+            }
+            $this->title = $title . ' ' . $this->model->getAttributeLabel($this->attribute);
+        } else {
+            $this->title = strtr($this->title, array('{label}' => $this->model->getAttributeLabel($this->attribute)));
         }
 
         $this->buildHtmlOptions();
@@ -194,6 +244,11 @@ class EditableField extends CWidget
             'title' => CHtml::encode($this->title),
         );
 
+        //language for datepicker: use yii config's value if not defined directly
+        if ($this->options['datepicker'] && !$this->options['datepicker']['language'] && yii::app()->language) {
+            $this->options['datepicker']['language'] = yii::app()->language;
+        }        
+        
         if ($this->emptytext) {
             $options['emptytext'] = $this->emptytext;
         }
@@ -328,5 +383,16 @@ class EditableField extends CWidget
     public function getSelector()
     {
         return get_class($this->model) . '_' . $this->attribute . ($this->model->primaryKey ? '_' . $this->model->primaryKey : '_new');
+    }
+    
+     /**
+     * method to use i18n messages from extension 'messages' folder.
+     * 
+     * @param mixed $str
+     * @param mixed $params
+     * @param mixed $dic
+     */
+    public static function t($str='', $params=array(), $dic='editable') {
+        return Yii::t("EditableField.".$dic, $str, $params);
     }
 }
