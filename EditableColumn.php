@@ -2,21 +2,26 @@
 /**
  * EditableColumn class file.
  * 
- * This widget makes editable column in GridView
- * 
  * @author Vitaliy Potapov <noginsk@rambler.ru>
- * @link https://github.com/vitalets/yii-bootstrap-editable
+ * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
- * @license http://www.opensource.org/licenses/bsd-license.php New BSD License
  * @version 1.0.0
- */
+*/
 
-Yii::import('ext.editable.EditableField');
+Yii::import('editable.EditableField');
 Yii::import('zii.widgets.grid.CDataColumn');
 
+/**
+* EditableColumn widget makes editable one column in CGridView.
+* 
+* @package widgets
+*/
 class EditableColumn extends CDataColumn
 {
-    //editable params
+    /**
+    * @var array editable config options.
+    * @see EditableField
+    */
     public $editable = array();
 
     //flag to render client script only once

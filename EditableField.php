@@ -2,20 +2,30 @@
 /**
  * EditableField class file.
  * 
- * This widget makes editable single attribute of model
- * 
  * @author Vitaliy Potapov <noginsk@rambler.ru>
- * @link https://github.com/vitalets/yii-bootstrap-editable
+ * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
- * @license http://www.opensource.org/licenses/bsd-license.php New BSD License
  * @version 1.0.0
- */
- 
+*/
+
+/**
+* EditableField widget makes editable single attribute of model. 
+* 
+* @package widgets
+*/
 class EditableField extends CWidget
 {
-    //for all types
+    /**
+    * @var CActiveRecord model of attribute to edit.
+    */
     public $model = null;
+    /**
+    * @var string attribute name.
+    */
     public $attribute = null;
+    /**
+    * @var string type of editable widget. Can be 'text', 'textarea', 'select' etc.
+    */
     public $type = null;
     public $url = null;
     public $title = null;
