@@ -70,6 +70,7 @@ class EditableColumn extends CDataColumn
         $selector = get_class($editable->model) . '_' . $editable->attribute;
         $editable->htmlOptions['rel'] = $selector;
 
+        //can't call run() as it registers clientScript
         $editable->renderLink();
 
         //manually render client script (one for all cells in column)

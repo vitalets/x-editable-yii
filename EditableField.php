@@ -49,6 +49,11 @@ class EditableField extends CWidget
     public $placement = 'top';
     
     /**
+    * @var string text shown on empty field
+    */
+    public $emptytext;
+    
+    /**
     * @var boolean will editable be initially disabled. It means editable plugin will be applied to element anyway.
     * To disable applying 'editable' to element use 'apply' option
     */
@@ -113,6 +118,12 @@ class EditableField extends CWidget
     */
     public function init()
     {   
+        parent::init();
+        
+        if($this->apply === false) {
+            return;
+        }
+        
         if (!$this->model) {
             throw new CException('Parameter "model" should be provided for Editable');
         }
@@ -120,15 +131,22 @@ class EditableField extends CWidget
             throw new CException('Parameter "attribute" should be provided for Editable');
         }
         
+        //resolve model and attribute for related model
+        list($this->model, $this->attribute) = self::resolveModel($this->model, $this->attribute);    
+ 
+        //model can be set to false in resolveModel method 
+        if($this->model === false) {
+            $this->apply = false;
+            return;
+        }        
+        
         //commented to be able to work with virtual attributes
         //see https://github.com/vitalets/yii-bootstrap-editable/issues/15
         /*
         if (!$this->model->hasAttribute($this->attribute)) {
             throw new CException('Model "'.get_class($this->model).'" does not have attribute "'.$this->attribute.'"');
         } 
-        */       
- 
-        parent::init();
+        */          
 
         //if `apply` not defined directly, set it to true only for safe attributes
         if($this->apply === null) {
@@ -136,7 +154,7 @@ class EditableField extends CWidget
         }
         
         //if apply = false --> just print text (see 'run' method)
-        if (!$this->apply) {
+        if ($this->apply === false) {
             return;
         }        
         
@@ -173,7 +191,7 @@ class EditableField extends CWidget
          For all types except 'select', 'checklist' etc.  For these keep it empty to apply autotext
         */ 
         if (!strlen($this->text) && !$this->_prepareToAutotext) {
-            $this->text = $this->model->getAttribute($this->attribute);
+            $this->text = CHtml::value($this->model, $this->attribute);
         }
                      
         //normalize url from array 
@@ -257,9 +275,21 @@ class EditableField extends CWidget
         if ($this->placement) {
             $options['placement'] = $this->placement;
         }
+        
+        if ($this->emptytext) {
+            $options['emptytext'] = $this->emptytext;
+        }
 
         if ($this->source) {
-            $options['source'] = $this->source;
+            //if first elem is array assume it's normal x-editable format, so just pass it
+            if(isset($this->source[0]) && is_array($this->source[0])) {
+                $options['source'] = $this->source;
+            } else { //else convert to x-editable source format
+                $options['source'] = array();
+                foreach($this->source as $value => $text) {
+                    $options['source'][] = array('value' => $value, 'text' => $text);  
+                }
+            }
         } 
         
         if ($this->format) {
@@ -363,4 +393,28 @@ class EditableField extends CWidget
     {
         return get_class($this->model) . '_' . $this->attribute . ($this->model->primaryKey ? '_' . $this->model->primaryKey : '_new');
     }
+    
+    /**
+    * check if attribute points to related model and resolve it
+    * 
+    * @param mixed $model
+    * @param mixed $attribute
+    */
+    public static function resolveModel($model, $attribute) 
+    {   
+        $explode = explode('.', $attribute);
+        if(count($explode) > 1) {
+            for($i = 0; $i < count($explode)-1; $i++) {
+                $name = $explode[$i];
+                if($model->$name instanceof CActiveRecord) {
+                    $model = $model->$name; 
+                } else {
+                    //related model not exist!
+                    throw new CException('Property '.$model->$name.' is not instance of CActiveRecord!');
+                }
+            } 
+            $attribute = $explode[$i];
+        }     
+        return array($model, $attribute);
+    }    
 }

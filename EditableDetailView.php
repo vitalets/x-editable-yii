@@ -8,7 +8,7 @@
  * @version 1.0.0
 */
  
-Yii::import('ext.editable.EditableField');
+Yii::import('editable.EditableField');
 Yii::import('zii.widgets.CDetailView');
 
 /**
@@ -18,11 +18,12 @@ Yii::import('zii.widgets.CDetailView');
 */
 class EditableDetailView extends CDetailView
 {
-    //common url for all editables
-    public $url = '';
-
-    //set bootstrap css
-    public $htmlOptions = array('class'=> 'table table-bordered table-striped table-hover table-condensed');
+    /**
+    * @var string submit url for all editables in detailview
+    */
+    public $url = null;
+    
+    //todo: add params property
 
     public function init()
     {
@@ -30,23 +31,25 @@ class EditableDetailView extends CDetailView
             throw new CException('Property "data" should be of CModel class.');
         }
 
+        //set bootstrap css
+        if(yii::app()->editable->form === EditableComponent::FORM_BOOTSTRAP) {
+            $this->htmlOptions = array('class'=> 'table table-bordered table-striped table-hover table-condensed');
+        }
+        
         parent::init();
     }
 
     protected function renderItem($options, $templateData)
     {
-        //if editable set to false --> not editable
-        $isEditable = array_key_exists('editable', $options) && $options['editable'] !== false;
-
-        //if name not defined or it is not safe --> not editable
-        $isEditable = !empty($options['name']) && $this->data->isAttributeSafe($options['name']);
-
-        if ($isEditable) {    
+        //apply editable if not set 'editable' params or set and not false
+        $apply = !empty($options['name']) && (!isset($options['editable']) || $options['editable'] !== false); 
+        
+        if ($apply) {    
             //ensure $options['editable'] is array
             if(!array_key_exists('editable', $options) || !is_array($options['editable'])) $options['editable'] = array();
 
-            //take common url
-            if (!array_key_exists('url', $options['editable'])) {
+            //take common url if not defined for particular item and not related model
+            if (!array_key_exists('url', $options['editable']) && strpos($options['name'], '.') === false) {
                 $options['editable']['url'] = $this->url;
             }
 
@@ -62,7 +65,14 @@ class EditableDetailView extends CDetailView
                 $editableOptions['encode'] = false;
             }
 
-            $templateData['{value}'] = $this->controller->widget('EditableField', $editableOptions, true);
+            $widget = $this->controller->createWidget('EditableField', $editableOptions);
+            
+            //'apply' can be changed during init of widget
+            if($widget->apply) {
+                ob_start();
+                $widget->run();
+                $templateData['{value}'] = ob_get_clean();
+            }
         } 
 
         parent::renderItem($options, $templateData);
