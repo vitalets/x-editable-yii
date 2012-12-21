@@ -105,6 +105,8 @@ class EditableField extends CWidget
     */
     public $title = null;
 
+    private $_prepareToAutotext = false; 
+    
     /**
     * initialization of widget
     * 
@@ -128,6 +130,16 @@ class EditableField extends CWidget
  
         parent::init();
 
+        //if `apply` not defined directly, set it to true only for safe attributes
+        if($this->apply === null) {
+            $this->apply = $this->model->isAttributeSafe($this->attribute);
+        }
+        
+        //if apply = false --> just print text (see 'run' method)
+        if (!$this->apply) {
+            return;
+        }        
+        
         /*
          try to detect type from metadata if not set                
         */
@@ -139,6 +151,11 @@ class EditableField extends CWidget
                 if(stripos($dbType, 'text') !== false) $this->type = 'textarea';
             }
         }
+        
+        /*
+        If set this flag to true --> element content will stay empty and value will be rendered to data-value attribute to apply autotext.
+        */
+        $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') && in_array($this->type, array('select', 'checklist', 'date', 'dateui'));
 
         /*
          unfortunatly datepicker's format does not match Yii locale dateFormat
@@ -155,21 +172,10 @@ class EditableField extends CWidget
          generate text from model attribute. 
          For all types except 'select', 'checklist' etc.  For these keep it empty to apply autotext
         */ 
-        $keepEmpty = array('select', 'checklist', 'date', 'dateui');
-        if (!strlen($this->text) && !in_array($this->type, $keepEmpty)) {
+        if (!strlen($this->text) && !$this->_prepareToAutotext) {
             $this->text = $this->model->getAttribute($this->attribute);
         }
-
-        //if `apply` not defined directly, set it to true only for safe attributes
-        if($this->apply === null) {
-            $this->apply = $this->model->isAttributeSafe($this->attribute);
-        }
-        
-        //if apply = false --> just print text and return       
-        if (!$this->apply) {
-            return;
-        }
-
+                     
         //normalize url from array 
         $this->url = CHtml::normalizeUrl($this->url);
 
@@ -204,29 +210,28 @@ class EditableField extends CWidget
             'data-pk'   => $this->model->primaryKey,
         );
 
-        //for select we need to define value directly
-        if ($this->type == 'select') {
-            $this->value = $this->model->getAttribute($this->attribute);
-            $this->htmlOptions['data-value'] = $this->value;
-        }
-        
-        //for date we use 'format' to put it into value (if text not defined)
-        if ($this->type == 'date' && !strlen($this->text)) {
-            $this->value = $this->model->getAttribute($this->attribute);
-            
-            //if date comes as object, format it to string
-            if($this->value instanceOf DateTime) {
-                /* 
-                * unfortunatly datepicker's format does not match Yii locale dateFormat,
-                * we need replacements below to convert date correctly
-                */
-                $count = 0;
-                $format = str_replace('MM', 'MMMM', $this->format, $count);
-                if(!$count) $format = str_replace('M', 'MMM', $format, $count);
-                if(!$count) $format = str_replace('m', 'M', $format);
+        //if preparing to autotext we need to define value directly in data-value.
+        if ($this->_prepareToAutotext) {
+            //for date we use 'format' to put it into value (if text not defined)
+            if ($this->type == 'date') {
+                $this->value = $this->model->getAttribute($this->attribute);
                 
-                $this->value = Yii::app()->dateFormatter->format($format, $this->value->getTimestamp()); 
-            }            
+                //if date comes as object, format it to string
+                if($this->value instanceOf DateTime) {
+                    /* 
+                    * unfortunatly datepicker's format does not match Yii locale dateFormat,
+                    * we need replacements below to convert date correctly
+                    */
+                    $count = 0;
+                    $format = str_replace('MM', 'MMMM', $this->format, $count);
+                    if(!$count) $format = str_replace('M', 'MMM', $format, $count);
+                    if(!$count) $format = str_replace('m', 'M', $format);
+                    
+                    $this->value = Yii::app()->dateFormatter->format($format, $this->value->getTimestamp()); 
+                }
+            } else {
+                $this->value = $this->model->getAttribute($this->attribute);            
+            }           
             
             $this->htmlOptions['data-value'] = $this->value;
         }        
@@ -245,64 +250,29 @@ class EditableField extends CWidget
         );
 
         //language for datepicker: use yii config's value if not defined directly
-        if ($this->options['datepicker'] && !$this->options['datepicker']['language'] && yii::app()->language) {
+        if (isset($this->options['datepicker']) && !$this->options['datepicker']['language'] && yii::app()->language) {
             $this->options['datepicker']['language'] = yii::app()->language;
         }        
-        
-        if ($this->emptytext) {
-            $options['emptytext'] = $this->emptytext;
-        }
         
         if ($this->placement) {
             $options['placement'] = $this->placement;
         }
-        
-        if ($this->inputclass) {
-            $options['inputclass'] = $this->inputclass;
-        }    
-        
-        if ($this->autotext) {
-            $options['autotext'] = $this->autotext;
-        }            
 
-        switch ($this->type) {
-            case 'text':
-            case 'textarea':
-                if ($this->placeholder) {
-                    $options['placeholder'] = $this->placeholder;
-                }
-                break;
-            case 'select':
-                if ($this->source) {
-                    $options['source'] = $this->source;
-                }
-                if ($this->prepend) {
-                    $options['prepend'] = $this->prepend;
-                }
-                break;
-            case 'date':
-                if ($this->format) {
-                    $options['format'] = $this->format;
-                }
-                if ($this->viewformat) {
-                    $options['viewformat'] = $this->viewformat;
-                }                
-                if ($this->language && substr($this->language, 0, 2) != 'en') {
-                    $options['datepicker']['language'] = $this->language;
-                }
-                if ($this->weekStart !== null) {
-                    $options['weekStart'] = $this->weekStart;
-                }
-                if ($this->startView !== null) {
-                    $options['startView'] = $this->startView;
-                }
-                break;
+        if ($this->source) {
+            $options['source'] = $this->source;
+        } 
+        
+        if ($this->format) {
+            $options['format'] = $this->format;
         }
+        if ($this->viewformat) {
+            $options['viewformat'] = $this->viewformat;
+        }                   
 
-        //methods
-        foreach(array('validate', 'success', 'error') as $event) {
-            if($this->$event!==null) {
-                $options[$event]=(strpos($this->$event, 'js:') !== 0 ? 'js:' : '') . $this->$event;
+        //callbacks
+        foreach(array('validate', 'success', 'display') as $c) {
+            if(isset($this->options[$c])) {
+                $options[$c]=(strpos($this->options[$c], 'js:') !== 0 ? 'js:' : '') . $this->options[$c];
             }
         }        
 
@@ -315,12 +285,11 @@ class EditableField extends CWidget
         $script = "$('a[rel={$this->htmlOptions['rel']}]')";
           
         //attach events
-        foreach(array('init', 'update', 'render', 'shown', 'hidden') as $event) {
-            $property = 'on'.ucfirst($event); 
-            if ($this->$property) {
+        foreach(array('init', 'shown', 'save', 'hidden') as $event) {
+            if (isset($this->options[$event])) {
                 // CJavaScriptExpression appeared only in 1.1.11, will turn to it later
                 //$event = ($this->onInit instanceof CJavaScriptExpression) ? $this->onInit : new CJavaScriptExpression($this->onInit);
-                $eventJs = (strpos($this->$property, 'js:') !== 0 ? 'js:' : '') . $this->$property;
+                $eventJs = (strpos($this->options[$event], 'js:') !== 0 ? 'js:' : '') . $this->options[$event];
                 $script .= "\n.on('".$event."', ".CJavaScript::encode($eventJs).")";
             }
         }
@@ -334,29 +303,39 @@ class EditableField extends CWidget
         return $script;
     }
 
-
     public function registerAssets()
     {
-        //if bootstrap extension installed, but no js registered -> register it!
-        if (($bootstrap = yii::app()->getComponent('bootstrap')) && !$bootstrap->enableJS) {
-            $bootstrap->registerCorePlugins(); //enable bootstrap js if needed
+        //if bootstrap extension installed --> use it!
+        if(yii::app()->editable->form === EditableComponent::FORM_BOOTSTRAP) {
+            if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
+                $bootstrap->registerCoreCss();
+                $bootstrap->registerCoreScripts();
+            }
+            
+            //publish x-editable assets for bootstrap
+            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
+            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
+            $css = 'bootstrap-editable.css';
         }
+        
+        //register assets            
+        Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/css/'.$css);
+        Yii::app()->clientScript->registerScriptFile($assetsUrl . '/js/'.$js, CClientScript::POS_END);
+        
 
-        $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('ext.editable.assets'), false, 1); //publish excluding datepicker locales
-        Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/css/bootstrap-editable.css');
-        Yii::app()->clientScript->registerScriptFile($assetsUrl . '/js/bootstrap-editable.js', CClientScript::POS_END);
-
-        //include locale for datepicker
+        //TODO: include locale for datepicker
+        /*
         if ($this->type == 'date' && $this->language && substr($this->language, 0, 2) != 'en') {
              //todo: check compare dp locale name with yii's
              $localesUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('ext.editable.assets.js.locales'));
              Yii::app()->clientScript->registerScriptFile($localesUrl . '/bootstrap-datepicker.'. str_replace('_', '-', $this->language).'.js', CClientScript::POS_END);
         }
+        */
     }
 
     public function run()
     {
-        if($this->enabled) {
+        if($this->apply) {
             $this->registerClientScript();
             $this->renderLink();
         } else {
@@ -383,16 +362,5 @@ class EditableField extends CWidget
     public function getSelector()
     {
         return get_class($this->model) . '_' . $this->attribute . ($this->model->primaryKey ? '_' . $this->model->primaryKey : '_new');
-    }
-    
-     /**
-     * method to use i18n messages from extension 'messages' folder.
-     * 
-     * @param mixed $str
-     * @param mixed $params
-     * @param mixed $dic
-     */
-    public static function t($str='', $params=array(), $dic='editable') {
-        return Yii::t("EditableField.".$dic, $str, $params);
     }
 }
