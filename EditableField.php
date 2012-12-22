@@ -38,7 +38,11 @@ class EditableField extends CWidget
     /**
     * @var array additional params to send on server
     */
-    public $params = null;    
+    public $params = null;
+    /**
+    * @var string css class of input
+    */
+    public $inputclass = null;    
     /**
     * @var string text to be shown as element content
     */
@@ -84,8 +88,24 @@ class EditableField extends CWidget
     * @var string a javascript function that will be invoked to validate value.
     */
     public $validate = null;
-
-    // --- end of X-editable options ----
+    
+    // --- X-editable events ---
+    /**
+    * @var string a javascript function that will be invoked when editable element is initializd
+    */    
+    public $onInit;
+    /**
+    * @var string a javascript function that will be invoked when editable form is shown
+    */    
+    public $onShown;
+    /**
+    * @var string a javascript function that will be invoked when new value is saved
+    */    
+    public $onSave;
+    /**
+    * @var string a javascript function that will be invoked when editable form is hidden
+    */    
+    public $onHidden;
     
     /**
     * @var array all config options of x-editable
@@ -136,13 +156,13 @@ class EditableField extends CWidget
         }
         
         //resolve model and attribute for related model
-        list($this->model, $this->attribute) = self::resolveModel($this->model, $this->attribute);    
- 
-        //model can be set to false in resolveModel method 
-        if($this->model === false) {
+        $resolved = self::resolveModel($this->model, $this->attribute);    
+        if($resolved === false) {
             $this->apply = false;
             return;
-        }        
+        } else {
+            list($this->model, $this->attribute) = $resolved;
+        }       
         
         //commented to be able to work with virtual attributes
         //see https://github.com/vitalets/yii-bootstrap-editable/issues/15
@@ -287,16 +307,24 @@ class EditableField extends CWidget
         if ($this->params) {
             $options['params'] = $this->params;
         }        
+        
+        if ($this->inputclass) {
+            $options['inputclass'] = $this->inputclass;
+        }         
 
         if ($this->source) {
-            //if first elem is array assume it's normal x-editable format, so just pass it
-            if(isset($this->source[0]) && is_array($this->source[0])) {
-                $options['source'] = $this->source;
-            } else { //else convert to x-editable source format
-                $options['source'] = array();
-                foreach($this->source as $value => $text) {
-                    $options['source'][] = array('value' => $value, 'text' => $text);  
+            if(is_array($this->source) && count($this->source)) {
+                //if first elem is array assume it's normal x-editable format, so just pass it
+                if(isset($this->source[0]) && is_array($this->source[0])) {
+                    $options['source'] = $this->source;
+                } else { //else convert to x-editable source format
+                    $options['source'] = array();
+                    foreach($this->source as $value => $text) {
+                        $options['source'][] = array('value' => $value, 'text' => $text);  
+                    }
                 }
+            } else {
+                $options['source'] = $this->source;
             }
         } 
         
@@ -324,10 +352,11 @@ class EditableField extends CWidget
           
         //attach events
         foreach(array('init', 'shown', 'save', 'hidden') as $event) {
-            if (isset($this->options[$event])) {
+            $eventName = 'on'.ucfirst($event);
+            if (isset($this->$eventName)) {
                 // CJavaScriptExpression appeared only in 1.1.11, will turn to it later
                 //$event = ($this->onInit instanceof CJavaScriptExpression) ? $this->onInit : new CJavaScriptExpression($this->onInit);
-                $eventJs = (strpos($this->options[$event], 'js:') !== 0 ? 'js:' : '') . $this->options[$event];
+                $eventJs = (strpos($this->$eventName, 'js:') !== 0 ? 'js:' : '') . $this->$eventName;
                 $script .= "\n.on('".$event."', ".CJavaScript::encode($eventJs).")";
             }
         }
@@ -417,8 +446,9 @@ class EditableField extends CWidget
                 if($model->$name instanceof CActiveRecord) {
                     $model = $model->$name; 
                 } else {
-                    //related model not exist!
-                    throw new CException('Property '.$model->$name.' is not instance of CActiveRecord!');
+                    //related model not exist! Better to return false and render as usual not editable field.
+                    //throw new CException('Property "'.$name.'" is not instance of CActiveRecord!');
+                    return false;
                 }
             } 
             $attribute = $explode[$i];

@@ -20,12 +20,12 @@ class EditableColumn extends CDataColumn
 {
     /**
     * @var array editable config options.
-    * @see EditableField
+    * @see EditableField config
     */
     public $editable = array();
 
-    //flag to render client script only once
-    protected $isScriptRendered = false;
+    //flag to render client script only once for all column cells
+    private $_isScriptRendered = false;
 
     public function init()
     {
@@ -38,18 +38,13 @@ class EditableColumn extends CDataColumn
 
         parent::init();
         
-        if($this->isEditable($this->grid->dataProvider->model)) {
-            $this->attachAjaxUpdateEvent();
-        }
+        //need to attach ajaxUpdate handler to refresh editables on pagination and sort
+        //should be here, before render of grid js
+        $this->attachAjaxUpdateEvent();
     }
 
     protected function renderDataCellContent($row, $data)
     {
-        if(!$this->isEditable($data)) {
-            parent::renderDataCellContent($row, $data);
-            return; 
-        }
-        
         $options = CMap::mergeArray($this->editable, array(
             'model'     => $data,
             'attribute' => $this->name,
@@ -63,28 +58,40 @@ class EditableColumn extends CDataColumn
             $options['text'] = $text;
             $options['encode'] = false;
         }
-       
-        $editable = $this->grid->controller->createWidget('EditableField', $options);
 
+        $widget = $this->grid->controller->createWidget('EditableField', $options);
+
+        //if editable not applied --> render original text
+        if(!$widget->apply) {
+           
+           if(isset($text)) {
+               echo $text;
+           } else {
+               parent::renderDataCellContent($row, $data);
+           }
+           return;
+        }
+        
         //manually make selector non unique to match all cells in column
-        $selector = get_class($editable->model) . '_' . $editable->attribute;
-        $editable->htmlOptions['rel'] = $selector;
+        $selector = get_class($widget->model) . '_' . $widget->attribute;
+        $widget->htmlOptions['rel'] = $selector;
 
         //can't call run() as it registers clientScript
-        $editable->renderLink();
+        $widget->renderLink();
 
         //manually render client script (one for all cells in column)
-        if (!$this->isScriptRendered) {
-            $script = $editable->registerClientScript();
+        if (!$this->_isScriptRendered) {
+            $script = $widget->registerClientScript();
+            //use parent() as grid is totally replaced by new content
             Yii::app()->getClientScript()->registerScript(__CLASS__ . '#' . $selector.'-event', '
                 $("#'.$this->grid->id.'").parent().on("ajaxUpdate.yiiGridView", "#'.$this->grid->id.'", function() {'.$script.'});
             ');
-            $this->isScriptRendered = true;
+            $this->_isScriptRendered = true;
         }
     }
     
    /**
-   * Unfortunatly Yii yet does not support custom js events in it's widgets. 
+   * Yii yet does not support custom js events in widgets. 
    * So we need to invoke it manually to ensure update of editables on grid ajax update.
    * 
    * issue in Yii github: https://github.com/yiisoft/yii/issues/1313
@@ -92,7 +99,7 @@ class EditableColumn extends CDataColumn
    */
     protected function attachAjaxUpdateEvent()
     {
-        $trigger = '$("#"+id).trigger("ajaxUpdate");';
+        $trigger = '$("#"+id).trigger("ajaxUpdate.yiiGridView");';
         
         //check if trigger already inserted by another column
         if(strpos($this->grid->afterAjaxUpdate, $trigger) !== false) return;
@@ -108,15 +115,5 @@ class EditableColumn extends CDataColumn
         $this->grid->afterAjaxUpdate = "js: function(id, data) {
             $trigger $orig
         }";
-    }
-    
-    /**
-    * determines wether column currently editable or not
-    * 
-    * @param mixed $model
-    */
-    protected function isEditable($model)
-    {
-         return $model->isAttributeSafe($this->name) && (!array_key_exists('enabled', $this->editable) || $this->editable['enabled'] === true);
     }
 }
