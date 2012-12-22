@@ -134,6 +134,31 @@ class EditableField extends CWidget
     */
     public $title = null;
 
+    //themeUrl, theme and cssFile copied from CJuiWidget to allow include custom theme for jQuery UI
+    /**
+     * @var string the root URL that contains all JUI theme folders.
+     * If this property is not set (default), Yii will publish the JUI package included in the zii release and use
+     * that to infer the root theme URL. You should set this property if you intend to use
+     * a theme that is not found in the JUI package included in zii.
+     * Note that under this URL, there must be a directory whose name is specified by {@link theme}.
+     * Do not append any slash character to the URL.
+     */
+    public $themeUrl;
+    /**
+     * @var string the JUI theme name. Defaults to 'base'. Make sure that under {@link themeUrl} there
+     * is a directory whose name is the same as this property value (case-sensitive).
+     */
+    public $theme='base';  
+    /**
+     * @var mixed the theme CSS file name. Defaults to 'jquery-ui.css'.
+     * Note the file must exist under the URL specified by {@link themeUrl}/{@link theme}.
+     * If you need to include multiple theme CSS files (e.g. during development, you want to include individual
+     * plugin CSS files), you may set this property as an array of the CSS file names.
+     * This property can also be set as false, which means the widget will not include any theme CSS file,
+     * and it is your responsibility to explicitly include it somewhere else.
+     */
+    public $cssFile='jquery-ui.css';
+    
     private $_prepareToAutotext = false; 
     
     /**
@@ -372,25 +397,54 @@ class EditableField extends CWidget
 
     public function registerAssets()
     {
-        //if bootstrap extension installed --> use it!
+        // bootstrap
         if(yii::app()->editable->form === EditableComponent::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
                 $bootstrap->registerCoreCss();
                 $bootstrap->registerCoreScripts();
+            } else {
+                throw new CException('You need to setup Yii-bootstrap extension first.');
             }
             
-            //publish x-editable assets for bootstrap
             $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
             $js = yii::app()->editable->container === EditableComponent::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
             $css = 'bootstrap-editable.css';
+        // jqueryui
+        } elseif(yii::app()->editable->form === EditableComponent::FORM_JQUERYUI) {
+            if(yii::app()->editable->container === EditableComponent::POPUP && Yii::getVersion() < '1.1.13' ) {
+                throw new CException('Popup editable with jQuery UI supported from jQuery UI 1.9 (Yii 1.1.13+)');
+            }
+            
+            //register jquery ui
+            $this->registerJQueryUI();
+            
+            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable')); 
+            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
+            $css = 'jqueryui-editable.css';
+        // plain jQuery
+        } else {
+            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jquery-editable')); 
+            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
+            $css = 'jquery-editable.css';             
+            
+            //register poshytip for popup version            
+            if(yii::app()->editable->container === EditableComponent::POPUP) {
+                Yii::app()->clientScript->registerScriptFile($assetsUrl . '/poshytip/jquery.poshytip.js');
+                Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/poshytip/tip-yellowsimple/tip-yellowsimple.css');
+            }
+            
+            //register jquery ui for datepicker
+            if($this->type == 'date' || $this->type == 'dateui') {
+                $this->registerJQueryUI();           
+            }
         }
         
         //register assets            
         Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/css/'.$css);
         Yii::app()->clientScript->registerScriptFile($assetsUrl . '/js/'.$js, CClientScript::POS_END);
-        
 
         //TODO: include locale for datepicker
+        //may be do it manually?
         /*
         if ($this->type == 'date' && $this->language && substr($this->language, 0, 2) != 'en') {
              //todo: check compare dp locale name with yii's
@@ -399,7 +453,7 @@ class EditableField extends CWidget
         }
         */
     }
-
+    
     public function run()
     {
         if($this->apply) {
@@ -454,5 +508,19 @@ class EditableField extends CWidget
             $attribute = $explode[$i];
         }     
         return array($model, $attribute);
-    }    
+    } 
+    
+    /**
+    * method to register jQuery UI with build-in or custom theme
+    *    
+    */
+    protected function registerJQueryUI()
+    {
+        $cs=Yii::app()->getClientScript();
+        if($this->themeUrl===null) {
+            $this->themeUrl=$cs->getCoreScriptUrl().'/jui/css';
+        }
+        $cs->registerCssFile($this->themeUrl.'/'.$this->theme.'/'.$this->cssFile);
+        $cs->registerPackage('jquery.ui'); 
+    }  
 }
