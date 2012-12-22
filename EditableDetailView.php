@@ -23,7 +23,10 @@ class EditableDetailView extends CDetailView
     */
     public $url = null;
     
-    //todo: add params property
+    /**
+    * @var array additional params to send on server
+    */
+    public $params = null;    
 
     public function init()
     {
@@ -46,12 +49,17 @@ class EditableDetailView extends CDetailView
         
         if ($apply) {    
             //ensure $options['editable'] is array
-            if(!array_key_exists('editable', $options) || !is_array($options['editable'])) $options['editable'] = array();
+            if(!isset($options['editable'])) $options['editable'] = array();
 
             //take common url if not defined for particular item and not related model
-            if (!array_key_exists('url', $options['editable']) && strpos($options['name'], '.') === false) {
+            if (!isset($options['editable']['url']) && strpos($options['name'], '.') === false) {
                 $options['editable']['url'] = $this->url;
             }
+            
+            //take common params if not defined for particular item 
+            if (!isset($options['editable']['params'])) {
+                $options['editable']['params'] = $this->params;
+            }            
 
             $editableOptions = CMap::mergeArray($options['editable'], array(
                 'model'     => $this->data,
@@ -59,15 +67,15 @@ class EditableDetailView extends CDetailView
                 'emptytext' => ($this->nullDisplay === null) ? Yii::t('zii', 'Not set') : strip_tags($this->nullDisplay),
             ));
             
-            //if value in detailview options provided, set text directly
-            if(array_key_exists('value', $options) && $options['value'] !== null) {
+            //if value in detailview options provided, set text directly (as value means text)
+            if(isset($options['value']) && $options['value'] !== null) {
                 $editableOptions['text'] = $templateData['{value}'];
                 $editableOptions['encode'] = false;
             }
 
             $widget = $this->controller->createWidget('EditableField', $editableOptions);
             
-            //'apply' can be changed during init of widget
+            //'apply' can be changed during init of widget (e.g. if related model and unsafe attribute)
             if($widget->apply) {
                 ob_start();
                 $widget->run();

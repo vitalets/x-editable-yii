@@ -36,6 +36,10 @@ class EditableField extends CWidget
     */
     public $url = null;
     /**
+    * @var array additional params to send on server
+    */
+    public $params = null;    
+    /**
     * @var string text to be shown as element content
     */
     public $text = null;
@@ -279,6 +283,10 @@ class EditableField extends CWidget
         if ($this->emptytext) {
             $options['emptytext'] = $this->emptytext;
         }
+        
+        if ($this->params) {
+            $options['params'] = $this->params;
+        }        
 
         if ($this->source) {
             //if first elem is array assume it's normal x-editable format, so just pass it
