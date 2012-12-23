@@ -1,15 +1,10 @@
-Yii-Bootstrap-Editable
+X-editable for Yii
 ======================
 
-This extension joins [Yii framework](http://yiiframework.com) with [Bootstrap Editable plugin](http://vitalets.github.com/bootstrap-editable) allowing in-place editing with [Twitter Bootstrap](http://twitter.github.com/bootstrap) Form and Popover.
-Includes three widgets and one component that together give you extremely fast and easy way for creating editable interfaces. 
+Bundle of Yii widgets and server-side part for creating editable elements using [X-editable](http://vitalets.github.com/x-editable) library.
+Currently in beta.
 
 ## Demo & Documentation
 
-http://demopage.ru/yii-bootstrap-editable
+*coming soon*
 
-## Contributing
-Please make all pull requests against `dev` branch. Your feedback / contribution is very appreciated.
-
-## Questions
-If you have question please feel free to [create an issue](https://github.com/vitalets/yii-bootstrap-editable/issues).

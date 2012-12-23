@@ -2,15 +2,17 @@
 /**
  * EditableSaver class file.
  * 
- * This component is servar-side part for editable widgets. It performs update of one model attribute.
- * 
  * @author Vitaliy Potapov <noginsk@rambler.ru>
- * @link https://github.com/vitalets/yii-bootstrap-editable
+ * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
- * @license http://www.opensource.org/licenses/bsd-license.php New BSD License
- * @version 1.0.0
- */
- 
+ * @version 0.1.0
+*/
+
+/**
+* EditableSaver helps to update model by editable widget submit request.
+* 
+* @package saver
+*/ 
 class EditableSaver extends CComponent
 {
     /**
