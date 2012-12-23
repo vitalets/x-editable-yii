@@ -88,6 +88,15 @@ class EditableField extends CWidget
     * @var string a javascript function that will be invoked to validate value.
     */
     public $validate = null;
+    /**
+    * @var string a javascript function that will be invoked to process successful server respone.
+    */
+    public $success = null;
+    /**
+    * @var string a javascript function that will be invoked to custom display value.
+    */
+    public $display = null;
+    
     
     // --- X-editable events ---
     /**
@@ -204,6 +213,7 @@ class EditableField extends CWidget
         
         //if apply = false --> just print text (see 'run' method)
         if ($this->apply === false) {
+            $this->text = CHtml::value($this->model, $this->attribute);
             return;
         }        
         
@@ -361,9 +371,9 @@ class EditableField extends CWidget
         }                   
 
         //callbacks
-        foreach(array('validate', 'success', 'display') as $c) {
-            if(isset($this->options[$c])) {
-                $options[$c]=(strpos($this->options[$c], 'js:') !== 0 ? 'js:' : '') . $this->options[$c];
+        foreach(array('validate', 'success', 'display') as $method) {
+            if(isset($this->$method)) {
+                $options[$method]=(strpos($this->$method, 'js:') !== 0 ? 'js:' : '') . $this->$method;
             }
         }        
 
