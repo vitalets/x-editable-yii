@@ -178,16 +178,20 @@ class EditableField extends CWidget
     {   
         parent::init();
         
-        if($this->apply === false) {
-            return;
-        }
-        
         if (!$this->model) {
             throw new CException('Parameter "model" should be provided for Editable');
         }
+        
         if (!$this->attribute) {
             throw new CException('Parameter "attribute" should be provided for Editable');
         }
+        
+        $originalText = CHtml::value($this->model, $this->attribute);
+        if($this->apply === false) {
+            $this->text = $originalText;
+            return;
+        }
+        
         
         //resolve model and attribute for related model
         $resolved = self::resolveModel($this->model, $this->attribute);    
@@ -213,7 +217,7 @@ class EditableField extends CWidget
         
         //if apply = false --> just print text (see 'run' method)
         if ($this->apply === false) {
-            $this->text = CHtml::value($this->model, $this->attribute);
+            $this->text = $originalText;
             return;
         }        
         
@@ -233,44 +237,13 @@ class EditableField extends CWidget
         If set this flag to true --> element content will stay empty and value will be rendered to data-value attribute to apply autotext.
         */
         $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') && in_array($this->type, array('select', 'checklist', 'date', 'dateui'));
-
-        /*
-         unfortunatly datepicker's format does not match Yii locale dateFormat
-         and we cannot take format from application locale
-         
-         see http://www.unicode.org/reports/tr35/#Date_Format_Patterns
-         
-        if($this->type == 'date' && $this->format === null) {
-            $this->format = Yii::app()->locale->getDateFormat();
-        }
-        */
         
         /* 
-         generate text from model attribute. 
-         For all types except 'select', 'checklist' etc.  For these keep it empty to apply autotext
+         If text not defined, generate it from model attribute for types except lists ('select', 'checklist' etc)  
+         For lists keep it empty to apply autotext
         */ 
         if (!strlen($this->text) && !$this->_prepareToAutotext) {
-            $this->text = CHtml::value($this->model, $this->attribute);
-        }
-                     
-        //normalize url from array 
-        $this->url = CHtml::normalizeUrl($this->url);
-
-        //generate title from attribute label
-        if ($this->title === null) {
-            $titles = array(
-              'Select' => array('select', 'date'),
-              'Check' => array('checklist')
-            );
-            $title = Yii::t('EditableField.editable', 'Enter');
-            foreach($titles as $t => $types) {
-                if(in_array($this->type, $types)) {
-                   $title = Yii::t('EditableField.editable', $t); 
-                }
-            }
-            $this->title = $title . ' ' . $this->model->getAttributeLabel($this->attribute);
-        } else {
-            $this->title = strtr($this->title, array('{label}' => $this->model->getAttributeLabel($this->attribute)));
+            $this->text = $originalText;
         }
 
         $this->buildHtmlOptions();
@@ -319,36 +292,44 @@ class EditableField extends CWidget
 
     public function buildJsOptions()
     {
+        //normalize url from array 
+        $this->url = CHtml::normalizeUrl($this->url);        
+        
+        //generate title from attribute label
+        if ($this->title === null) {
+            $titles = array(
+              'Select' => array('select', 'date'),
+              'Check' => array('checklist')
+            );
+            $title = Yii::t('EditableField.editable', 'Enter');
+            foreach($titles as $t => $types) {
+                if(in_array($this->type, $types)) {
+                   $title = Yii::t('EditableField.editable', $t); 
+                }
+            }
+            $this->title = $title . ' ' . $this->model->getAttributeLabel($this->attribute);
+        } else {
+            $this->title = strtr($this->title, array('{label}' => $this->model->getAttributeLabel($this->attribute)));
+        }        
+        
         $options = array(
             'type'  => $this->type,
             'url'   => $this->url,
             'name'  => $this->attribute,
             'title' => CHtml::encode($this->title),
-        );
-
-        //language for datepicker: use yii config's value if not defined directly
-        if (isset($this->options['datepicker']) && !$this->options['datepicker']['language'] && yii::app()->language) {
-            $this->options['datepicker']['language'] = yii::app()->language;
-        }        
+        );         
         
-        if ($this->placement) {
-            $options['placement'] = $this->placement;
+        //options set directly in config
+        foreach(array('placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat') as $option) {
+            if ($this->$option) {
+                $options[$option] = $this->$option;
+            }
         }
-        
-        if ($this->emptytext) {
-            $options['emptytext'] = $this->emptytext;
-        }
-        
-        if ($this->params) {
-            $options['params'] = $this->params;
-        }        
-        
-        if ($this->inputclass) {
-            $options['inputclass'] = $this->inputclass;
-        }         
 
         if ($this->source) {
-            if(is_array($this->source) && count($this->source)) {
+            //if source is array --> convert it to x-editable format. 
+            //Note: source with count = 1 is Yii route
+            if(is_array($this->source) && count($this->source) > 1) {
                 //if first elem is array assume it's normal x-editable format, so just pass it
                 if(isset($this->source[0]) && is_array($this->source[0])) {
                     $options['source'] = $this->source;
@@ -358,17 +339,28 @@ class EditableField extends CWidget
                         $options['source'][] = array('value' => $value, 'text' => $text);  
                     }
                 }
-            } else {
-                $options['source'] = $this->source;
+            } else { //source is url
+                $options['source'] = CHtml::normalizeUrl($this->source);
             }
         } 
         
-        if ($this->format) {
-            $options['format'] = $this->format;
+        //TODO: language for datepicker: use yii config's value if not defined directly
+        
+        /*
+         unfortunatly datepicker's format does not match Yii locale dateFormat
+         so we cannot take format from application locale
+         
+         see http://www.unicode.org/reports/tr35/#Date_Format_Patterns
+         
+        if($this->type == 'date' && $this->format === null) {
+            $this->format = Yii::app()->locale->getDateFormat();
         }
-        if ($this->viewformat) {
-            $options['viewformat'] = $this->viewformat;
-        }                   
+        */        
+        /*
+        if (isset($this->options['datepicker']) && !$this->options['datepicker']['language'] && yii::app()->language) {
+            $this->options['datepicker']['language'] = yii::app()->language;
+        } 
+        */          
 
         //callbacks
         foreach(array('validate', 'success', 'display') as $method) {
@@ -376,7 +368,7 @@ class EditableField extends CWidget
                 $options[$method]=(strpos($this->$method, 'js:') !== 0 ? 'js:' : '') . $this->$method;
             }
         }        
-
+        
         //merging options
         $this->options = CMap::mergeArray($this->options, $options);
     }
