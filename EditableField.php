@@ -403,7 +403,7 @@ class EditableField extends CWidget
     public function registerAssets()
     {
         // bootstrap
-        if(yii::app()->editable->form === EditableComponent::FORM_BOOTSTRAP) {
+        if(yii::app()->editable->form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
                 $bootstrap->registerCoreCss();
                 $bootstrap->registerCoreScripts();
@@ -412,11 +412,11 @@ class EditableField extends CWidget
             }
             
             $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
-            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
+            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
             $css = 'bootstrap-editable.css';
         // jqueryui
-        } elseif(yii::app()->editable->form === EditableComponent::FORM_JQUERYUI) {
-            if(yii::app()->editable->container === EditableComponent::POPUP && Yii::getVersion() < '1.1.13' ) {
+        } elseif(yii::app()->editable->form === EditableConfig::FORM_JQUERYUI) {
+            if(yii::app()->editable->container === EditableConfig::POPUP && Yii::getVersion() < '1.1.13' ) {
                 throw new CException('Popup editable with jQuery UI supported from jQuery UI 1.9 (Yii 1.1.13+)');
             }
             
@@ -424,16 +424,16 @@ class EditableField extends CWidget
             $this->registerJQueryUI();
             
             $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable')); 
-            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
+            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
             $css = 'jqueryui-editable.css';
         // plain jQuery
         } else {
             $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jquery-editable')); 
-            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
+            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
             $css = 'jquery-editable.css';             
             
             //register poshytip for popup version            
-            if(yii::app()->editable->container === EditableComponent::POPUP) {
+            if(yii::app()->editable->container === EditableConfig::POPUP) {
                 Yii::app()->clientScript->registerScriptFile($assetsUrl . '/poshytip/jquery.poshytip.js');
                 Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/poshytip/tip-yellowsimple/tip-yellowsimple.css');
             }
