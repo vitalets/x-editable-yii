@@ -46,9 +46,14 @@ class EditableSaver extends CComponent
      * @var CActiveRecord
      */
     public $model;
+    
+    /**
+     * @var mixed new value of attribute
+     */
+    public $value;    
 
     /**
-     * http status code ruterned for errors
+     * http status code returned in case of error
     */
     public $errorHttpCode = 400;
 
@@ -79,10 +84,10 @@ class EditableSaver extends CComponent
      */
     public function update()
     {
-        //set params from request
+        //get params from request
         $this->primaryKey = yii::app()->request->getParam('pk');
         $this->attribute = yii::app()->request->getParam('name');
-        $value = yii::app()->request->getParam('value');
+        $this->value = yii::app()->request->getParam('value');
 
         //checking params
         if (empty($this->attribute)) {
@@ -98,6 +103,8 @@ class EditableSaver extends CComponent
             throw new CException(Yii::t('editable', 'Model {class} not found by primary key "{pk}"', array(
                '{class}'=>get_class($this->model), '{pk}'=>$this->primaryKey)));
         }
+        
+        //set scenario
         $this->model->setScenario($this->scenario);
         
         //is attribute exists
@@ -113,28 +120,68 @@ class EditableSaver extends CComponent
         }
 
         //setting new value
-        $this->setAttribute($this->attribute, $value);
-
-        //validate
+        $this->setAttribute($this->attribute, $this->value);
+        
+        //validate attribute
         $this->model->validate(array($this->attribute));
-        if ($this->model->hasErrors()) {
-            $this->error($this->model->getError($this->attribute));
-        }
+        $this->checkErrors();
 
-        //save
-        if ($this->beforeUpdate()) {
-            //saving (only chnaged attributes)
-            if ($this->model->save(false, $this->changedAttributes)) {
-                $this->afterUpdate();
-            } else {
-                $this->error(Yii::t('editable', 'Error while saving record!')); 
-            }
+        //trigger beforeUpdate event
+        $this->beforeUpdate();
+        $this->checkErrors();
+        
+        //saving (no validation, only changed attributes)
+        if ($this->model->save(false, $this->changedAttributes)) {
+            //trigger afterUpdate event
+            $this->afterUpdate();
         } else {
-            $firstError = reset($this->model->getErrors());
-            $this->error($firstError[0]);
+            $this->error(Yii::t('editable', 'Error while saving record!')); 
         }
     }
 
+    /**
+     * errors as CHttpException
+     * @param $msg
+     * @throws CHttpException
+     */
+    public function checkErrors()
+    {
+        if ($this->model->hasErrors()) {
+            $msg = array();
+            foreach($this->model->getErrors() as $attribute => $errors) {
+               $msg = array_merge($msg, $errors); 
+            }
+            //todo: show several messages. should be checked in x-editable js
+            //$this->error(join("\n", $msg));
+            $this->error($msg[0]);
+        }
+    }     
+    
+    /**
+     * errors as CHttpException
+     * @param $msg
+     * @throws CHttpException
+     */
+    public function error($msg)
+    {
+        throw new CHttpException($this->errorHttpCode, $msg);
+    }  
+    
+    /**
+    * setting new value of attribute.
+    * Attrubute name also stored in array to save only changed attributes
+    * 
+    * @param mixed $name
+    * @param mixed $value
+    */
+    public function setAttribute($name, $value)
+    {
+         $this->model->$name = $value;
+         if(!in_array($name, $this->changedAttributes)) {
+             $this->changedAttributes[] = $name;
+         }
+    }      
+    
     /**
      * This event is raised before the update is performed.
      * @param CModelEvent $event the event parameter
@@ -154,23 +201,12 @@ class EditableSaver extends CComponent
     }
 
     /**
-     * errors  as CHttpException
-     * @param $msg
-     * @throws CHttpException
-     */
-    protected function error($msg)
-    {
-        throw new CHttpException($this->errorHttpCode, $msg);
-    }
-
-    /**
      * beforeUpdate
      *
      */
     protected function beforeUpdate()
     {
         $this->onBeforeUpdate(new CEvent($this));
-        return !$this->model->hasErrors();
     }
 
     /**
@@ -180,19 +216,5 @@ class EditableSaver extends CComponent
     protected function afterUpdate()
     {
         $this->onAfterUpdate(new CEvent($this));
-    }
-    
-    /**
-    * setting new value of attribute.
-    * Attrubute name also stored in array to save only changed attributes
-    * 
-    * @param mixed $name
-    * @param mixed $value
-    */
-    public function setAttribute($name, $value)
-    {
-         $this->model->$name = $value;
-         $this->changedAttributes[] = $name;
-         $this->changedAttributes = array_unique($this->changedAttributes);
     }
 }

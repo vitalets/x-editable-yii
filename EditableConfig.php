@@ -1,6 +1,6 @@
 <?php
 /**
- * EditableComponent class file.
+ * EditableConfig class file.
  * 
  * @author Vitaliy Potapov <noginsk@rambler.ru>
  * @link https://github.com/vitalets/x-editable-yii
@@ -8,7 +8,7 @@
  * @version 0.1.0
 */  
   
-class EditableComponent extends CApplicationComponent
+class EditableConfig extends CApplicationComponent
 {
     const FORM_BOOTSTRAP = 'bootstrap';
     const FORM_JQUERYUI = 'jqueryui';
@@ -32,4 +32,19 @@ class EditableComponent extends CApplicationComponent
     */
     public $defaults = array();
     
+    /**
+    * initializes editable component and sets defaults
+    * 
+    */
+    public function init() 
+    {
+        parent::init();
+        Yii::import('editable.*');
+        if(!empty($this->defaults)) {
+             $defaults = CJavaScript::encode($this->defaults);        
+             Yii::app()->getClientScript()->registerScript(
+                'editable-defaults', 'if($.fn.editable) $.extend($.fn.editable.defaults, '.$defaults.');'
+             );
+        }
+    }
 }

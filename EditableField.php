@@ -15,10 +15,9 @@
 */
 class EditableField extends CWidget
 {
-    //note: only most usefull options are on first config level. 
+    //note: only most usefull options are on first level of config. 
     
     // --- start of X-editable options ----
-    
     /**
     * @var CActiveRecord model of attribute to edit.
     */
@@ -29,18 +28,22 @@ class EditableField extends CWidget
     public $attribute = null;
     /**
     * @var string type of editable widget. Can be 'text', 'textarea', 'select' etc.
+    * @see x-editable
     */
     public $type = null;
     /**
     * @var string url to submit value
+    * @see x-editable
     */
     public $url = null;
     /**
     * @var array additional params to send on server
+    * @see x-editable
     */
     public $params = null;
     /**
     * @var string css class of input
+    * @see x-editable
     */
     public $inputclass = null;    
     /**
@@ -49,75 +52,126 @@ class EditableField extends CWidget
     public $text = null;
     /**
     * @var mixed initial value. If not set - will be take from text
+    * @see x-editable
     */
     public $value = null;
     /**
     * @var string placement of popup. Can be 'left', 'top', 'right', 'bottom'
+    * @see x-editable
     */
     public $placement = 'top';
     
     /**
     * @var string text shown on empty field
+    * @see x-editable
     */
-    public $emptytext;
+    public $emptytext = 'Empty';
     
     /**
     * @var boolean will editable be initially disabled. It means editable plugin will be applied to element anyway.
     * To disable applying 'editable' to element use 'apply' option
+    * @see x-editable
     */
     public $disabled = false;
    
     //list
     /**
     * @var mixed source data for 'select', 'checklist'. Can be url or php array.
+    * @package list
+    * @see x-editable
     */
     public $source = null;
 
     //date
     /**
     * @var string format to send date on server
+    * @package date
+    * @see x-editable
     */
     public $format = 'yyyy-mm-dd';
     /**
     * @var string format to display date in element
+    * @package date
+    * @see x-editable
     */
     public $viewformat = null;
 
     //methods
     /**
-    * @var string a javascript function that will be invoked to validate value.
+    * A javascript function that will be invoked to validate value.
+    * Example:
+    * <pre>
+    * 'validate' => 'js: function(value) {
+    *     if($.trim(value) == "") return "This field is required";
+    * }'
+    * </pre>
+    * 
+    * @var string 
+    * @package callback
+    * @see x-editable
+    * @example
     */
     public $validate = null;
     /**
-    * @var string a javascript function that will be invoked to process successful server respone.
+    * A javascript function that will be invoked to process successful server response.
+    * Example:
+    * <pre>
+    * 'success' => 'js: function(response, newValue) {
+    *     if(!response.success) return response.msg;
+    * }'
+    * </pre>
+    * 
+    * @var string 
+    * @package callback
+    * @see x-editable
     */
     public $success = null;
     /**
-    * @var string a javascript function that will be invoked to custom display value.
+    * A javascript function that will be invoked to custom display value.
+    * Example:
+    * <pre>
+    * 'display' => 'js: function(value, sourceData) {
+    *      var escapedValue = $("&lt;div&gt;").text(value).html();
+    *      $(this).html("&lt;b&gt;"+escapedValue+"&lt;/b&gt;");
+    * }'
+    * </pre>
+    * 
+    * @var string
+    * @package callback
+    * @see x-editable
     */
     public $display = null;
     
     
     // --- X-editable events ---
     /**
-    * @var string a javascript function that will be invoked when editable element is initializd
+    * A javascript function that will be invoked when editable element is initialized
+    * @var string 
+    * @package event
+    * @see x-editable
     */    
     public $onInit;
     /**
-    * @var string a javascript function that will be invoked when editable form is shown
+    * @var string A javascript function that will be invoked when editable form is shown
+    * @package event
+    * @see x-editable
     */    
     public $onShown;
     /**
-    * @var string a javascript function that will be invoked when new value is saved
+    * @var string A javascript function that will be invoked when new value is saved
+    * @package event
+    * @see x-editable
     */    
     public $onSave;
     /**
-    * @var string a javascript function that will be invoked when editable form is hidden
+    * @var string A javascript function that will be invoked when editable form is hidden
+    * @package event
+    * @see x-editable
     */    
     public $onHidden;
     
     /**
-    * @var array all config options of x-editable
+    * @var array all config options of x-editable. See full list <a href="http://vitalets.github.com/x-editable/docs.html#editable">here</a>.
     */
     public $options = array();
     
@@ -145,27 +199,17 @@ class EditableField extends CWidget
 
     //themeUrl, theme and cssFile copied from CJuiWidget to allow include custom theme for jQuery UI
     /**
-     * @var string the root URL that contains all JUI theme folders.
-     * If this property is not set (default), Yii will publish the JUI package included in the zii release and use
-     * that to infer the root theme URL. You should set this property if you intend to use
-     * a theme that is not found in the JUI package included in zii.
-     * Note that under this URL, there must be a directory whose name is specified by {@link theme}.
-     * Do not append any slash character to the URL.
-     */
+     * @var string for jQuery UI only. The root URL that contains JUI theme folders.
+     * If not set, default Yii's theme will be used.
+    */
     public $themeUrl;
     /**
-     * @var string the JUI theme name. Defaults to 'base'. Make sure that under {@link themeUrl} there
-     * is a directory whose name is the same as this property value (case-sensitive).
+     * @var string for jQuery UI only. The JUI theme name. Defaults to 'base'.
      */
     public $theme='base';  
     /**
-     * @var mixed the theme CSS file name. Defaults to 'jquery-ui.css'.
-     * Note the file must exist under the URL specified by {@link themeUrl}/{@link theme}.
-     * If you need to include multiple theme CSS files (e.g. during development, you want to include individual
-     * plugin CSS files), you may set this property as an array of the CSS file names.
-     * This property can also be set as false, which means the widget will not include any theme CSS file,
-     * and it is your responsibility to explicitly include it somewhere else.
-     */
+     * @var mixed for jQuery UI only. The theme CSS file name. By default Yii's jquery UI css used.
+    */
     public $cssFile='jquery-ui.css';
     
     private $_prepareToAutotext = false; 
@@ -178,21 +222,28 @@ class EditableField extends CWidget
     {   
         parent::init();
         
-        if($this->apply === false) {
-            return;
-        }
-        
         if (!$this->model) {
             throw new CException('Parameter "model" should be provided for Editable');
         }
+        
         if (!$this->attribute) {
             throw new CException('Parameter "attribute" should be provided for Editable');
         }
+        
+        $originalText = strlen($this->text) ? $this->text : CHtml::value($this->model, $this->attribute);
+        
+        //if apply set to false --> just print text
+        if($this->apply === false) {
+            $this->text = $originalText;
+            return;
+        }
+        
         
         //resolve model and attribute for related model
         $resolved = self::resolveModel($this->model, $this->attribute);    
         if($resolved === false) {
             $this->apply = false;
+            $this->text = $originalText;
             return;
         } else {
             list($this->model, $this->attribute) = $resolved;
@@ -213,7 +264,7 @@ class EditableField extends CWidget
         
         //if apply = false --> just print text (see 'run' method)
         if ($this->apply === false) {
-            $this->text = CHtml::value($this->model, $this->attribute);
+            $this->text = $originalText;
             return;
         }        
         
@@ -233,44 +284,13 @@ class EditableField extends CWidget
         If set this flag to true --> element content will stay empty and value will be rendered to data-value attribute to apply autotext.
         */
         $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') && in_array($this->type, array('select', 'checklist', 'date', 'dateui'));
-
-        /*
-         unfortunatly datepicker's format does not match Yii locale dateFormat
-         and we cannot take format from application locale
-         
-         see http://www.unicode.org/reports/tr35/#Date_Format_Patterns
-         
-        if($this->type == 'date' && $this->format === null) {
-            $this->format = Yii::app()->locale->getDateFormat();
-        }
-        */
         
         /* 
-         generate text from model attribute. 
-         For all types except 'select', 'checklist' etc.  For these keep it empty to apply autotext
+         If text not defined, generate it from model attribute for types except lists ('select', 'checklist' etc)  
+         For lists keep it empty to apply autotext
         */ 
         if (!strlen($this->text) && !$this->_prepareToAutotext) {
-            $this->text = CHtml::value($this->model, $this->attribute);
-        }
-                     
-        //normalize url from array 
-        $this->url = CHtml::normalizeUrl($this->url);
-
-        //generate title from attribute label
-        if ($this->title === null) {
-            $titles = array(
-              'Select' => array('select', 'date'),
-              'Check' => array('checklist')
-            );
-            $title = Yii::t('EditableField.editable', 'Enter');
-            foreach($titles as $t => $types) {
-                if(in_array($this->type, $types)) {
-                   $title = Yii::t('EditableField.editable', $t); 
-                }
-            }
-            $this->title = $title . ' ' . $this->model->getAttributeLabel($this->attribute);
-        } else {
-            $this->title = strtr($this->title, array('{label}' => $this->model->getAttributeLabel($this->attribute)));
+            $this->text = $originalText;
         }
 
         $this->buildHtmlOptions();
@@ -319,36 +339,44 @@ class EditableField extends CWidget
 
     public function buildJsOptions()
     {
+        //normalize url from array 
+        $this->url = CHtml::normalizeUrl($this->url);        
+        
+        //generate title from attribute label
+        if ($this->title === null) {
+            $titles = array(
+              'Select' => array('select', 'date'),
+              'Check' => array('checklist')
+            );
+            $title = Yii::t('EditableField.editable', 'Enter');
+            foreach($titles as $t => $types) {
+                if(in_array($this->type, $types)) {
+                   $title = Yii::t('EditableField.editable', $t); 
+                }
+            }
+            $this->title = $title . ' ' . $this->model->getAttributeLabel($this->attribute);
+        } else {
+            $this->title = strtr($this->title, array('{label}' => $this->model->getAttributeLabel($this->attribute)));
+        }        
+        
         $options = array(
             'type'  => $this->type,
             'url'   => $this->url,
             'name'  => $this->attribute,
             'title' => CHtml::encode($this->title),
-        );
-
-        //language for datepicker: use yii config's value if not defined directly
-        if (isset($this->options['datepicker']) && !$this->options['datepicker']['language'] && yii::app()->language) {
-            $this->options['datepicker']['language'] = yii::app()->language;
-        }        
+        );         
         
-        if ($this->placement) {
-            $options['placement'] = $this->placement;
+        //options set directly in config
+        foreach(array('placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat') as $option) {
+            if ($this->$option) {
+                $options[$option] = $this->$option;
+            }
         }
-        
-        if ($this->emptytext) {
-            $options['emptytext'] = $this->emptytext;
-        }
-        
-        if ($this->params) {
-            $options['params'] = $this->params;
-        }        
-        
-        if ($this->inputclass) {
-            $options['inputclass'] = $this->inputclass;
-        }         
 
         if ($this->source) {
-            if(is_array($this->source) && count($this->source)) {
+            //if source is array --> convert it to x-editable format. 
+            //Note: source with count = 1 is Yii route
+            if(is_array($this->source) && count($this->source) > 1) {
                 //if first elem is array assume it's normal x-editable format, so just pass it
                 if(isset($this->source[0]) && is_array($this->source[0])) {
                     $options['source'] = $this->source;
@@ -358,17 +386,28 @@ class EditableField extends CWidget
                         $options['source'][] = array('value' => $value, 'text' => $text);  
                     }
                 }
-            } else {
-                $options['source'] = $this->source;
+            } else { //source is url
+                $options['source'] = CHtml::normalizeUrl($this->source);
             }
         } 
         
-        if ($this->format) {
-            $options['format'] = $this->format;
+        //TODO: language for datepicker: use yii config's value if not defined directly
+        
+        /*
+         unfortunatly datepicker's format does not match Yii locale dateFormat
+         so we cannot take format from application locale
+         
+         see http://www.unicode.org/reports/tr35/#Date_Format_Patterns
+         
+        if($this->type == 'date' && $this->format === null) {
+            $this->format = Yii::app()->locale->getDateFormat();
         }
-        if ($this->viewformat) {
-            $options['viewformat'] = $this->viewformat;
-        }                   
+        */        
+        /*
+        if (isset($this->options['datepicker']) && !$this->options['datepicker']['language'] && yii::app()->language) {
+            $this->options['datepicker']['language'] = yii::app()->language;
+        } 
+        */          
 
         //callbacks
         foreach(array('validate', 'success', 'display') as $method) {
@@ -376,7 +415,7 @@ class EditableField extends CWidget
                 $options[$method]=(strpos($this->$method, 'js:') !== 0 ? 'js:' : '') . $this->$method;
             }
         }        
-
+        
         //merging options
         $this->options = CMap::mergeArray($this->options, $options);
     }
@@ -408,7 +447,7 @@ class EditableField extends CWidget
     public function registerAssets()
     {
         // bootstrap
-        if(yii::app()->editable->form === EditableComponent::FORM_BOOTSTRAP) {
+        if(yii::app()->editable->form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
                 $bootstrap->registerCoreCss();
                 $bootstrap->registerCoreScripts();
@@ -417,11 +456,11 @@ class EditableField extends CWidget
             }
             
             $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
-            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
+            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
             $css = 'bootstrap-editable.css';
         // jqueryui
-        } elseif(yii::app()->editable->form === EditableComponent::FORM_JQUERYUI) {
-            if(yii::app()->editable->container === EditableComponent::POPUP && Yii::getVersion() < '1.1.13' ) {
+        } elseif(yii::app()->editable->form === EditableConfig::FORM_JQUERYUI) {
+            if(yii::app()->editable->container === EditableConfig::POPUP && Yii::getVersion() < '1.1.13' ) {
                 throw new CException('Popup editable with jQuery UI supported from jQuery UI 1.9 (Yii 1.1.13+)');
             }
             
@@ -429,16 +468,16 @@ class EditableField extends CWidget
             $this->registerJQueryUI();
             
             $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable')); 
-            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
+            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
             $css = 'jqueryui-editable.css';
         // plain jQuery
         } else {
             $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jquery-editable')); 
-            $js = yii::app()->editable->container === EditableComponent::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
+            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
             $css = 'jquery-editable.css';             
             
             //register poshytip for popup version            
-            if(yii::app()->editable->container === EditableComponent::POPUP) {
+            if(yii::app()->editable->container === EditableConfig::POPUP) {
                 Yii::app()->clientScript->registerScriptFile($assetsUrl . '/poshytip/jquery.poshytip.js');
                 Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/poshytip/tip-yellowsimple/tip-yellowsimple.css');
             }
