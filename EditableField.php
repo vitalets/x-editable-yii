@@ -186,8 +186,9 @@ class EditableField extends CWidget
             throw new CException('Parameter "attribute" should be provided for Editable');
         }
         
+        $originalText = strlen($this->text) ? $this->text : CHtml::value($this->model, $this->attribute);
+        
         //if apply set to false --> just print text
-        $originalText = CHtml::value($this->model, $this->attribute);
         if($this->apply === false) {
             $this->text = $originalText;
             return;
