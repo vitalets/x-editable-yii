@@ -32,4 +32,18 @@ class EditableConfig extends CApplicationComponent
     */
     public $defaults = array();
     
+    /**
+    * initializes editable component and sets defaults
+    * 
+    */
+    public function init() 
+    {
+        parent::init();
+        if(!empty($this->defaults)) {
+             $defaults = CJavaScript::encode($this->defaults);        
+             Yii::app()->getClientScript()->registerScript(
+                'editable-defaults', '$.extend($.fn.editable.defaults, '.$defaults.');'
+             );
+        }
+    }
 }
