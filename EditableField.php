@@ -15,10 +15,9 @@
 */
 class EditableField extends CWidget
 {
-    //note: only most usefull options are on first config level. 
+    //note: only most usefull options are on first level of config. 
     
     // --- start of X-editable options ----
-    
     /**
     * @var CActiveRecord model of attribute to edit.
     */
@@ -29,18 +28,22 @@ class EditableField extends CWidget
     public $attribute = null;
     /**
     * @var string type of editable widget. Can be 'text', 'textarea', 'select' etc.
+    * @see x-editable
     */
     public $type = null;
     /**
     * @var string url to submit value
+    * @see x-editable
     */
     public $url = null;
     /**
     * @var array additional params to send on server
+    * @see x-editable
     */
     public $params = null;
     /**
     * @var string css class of input
+    * @see x-editable
     */
     public $inputclass = null;    
     /**
@@ -49,75 +52,126 @@ class EditableField extends CWidget
     public $text = null;
     /**
     * @var mixed initial value. If not set - will be take from text
+    * @see x-editable
     */
     public $value = null;
     /**
     * @var string placement of popup. Can be 'left', 'top', 'right', 'bottom'
+    * @see x-editable
     */
     public $placement = 'top';
     
     /**
     * @var string text shown on empty field
+    * @see x-editable
     */
-    public $emptytext;
+    public $emptytext = 'Empty';
     
     /**
     * @var boolean will editable be initially disabled. It means editable plugin will be applied to element anyway.
     * To disable applying 'editable' to element use 'apply' option
+    * @see x-editable
     */
     public $disabled = false;
    
     //list
     /**
     * @var mixed source data for 'select', 'checklist'. Can be url or php array.
+    * @package list
+    * @see x-editable
     */
     public $source = null;
 
     //date
     /**
     * @var string format to send date on server
+    * @package date
+    * @see x-editable
     */
     public $format = 'yyyy-mm-dd';
     /**
     * @var string format to display date in element
+    * @package date
+    * @see x-editable
     */
     public $viewformat = null;
 
     //methods
     /**
-    * @var string a javascript function that will be invoked to validate value.
+    * A javascript function that will be invoked to validate value.
+    * Example:
+    * <pre>
+    * 'validate' => 'js: function(value) {
+    *     if($.trim(value) == "") return "This field is required";
+    * }'
+    * </pre>
+    * 
+    * @var string 
+    * @package callback
+    * @see x-editable
+    * @example
     */
     public $validate = null;
     /**
-    * @var string a javascript function that will be invoked to process successful server respone.
+    * A javascript function that will be invoked to process successful server response.
+    * Example:
+    * <pre>
+    * 'success' => 'js: function(response, newValue) {
+    *     if(!response.success) return response.msg;
+    * }'
+    * </pre>
+    * 
+    * @var string 
+    * @package callback
+    * @see x-editable
     */
     public $success = null;
     /**
-    * @var string a javascript function that will be invoked to custom display value.
+    * A javascript function that will be invoked to custom display value.
+    * Example:
+    * <pre>
+    * 'display' => 'js: function(value, sourceData) {
+    *      var escapedValue = $("&lt;div&gt;").text(value).html();
+    *      $(this).html("&lt;b&gt;"+escapedValue+"&lt;/b&gt;");
+    * }'
+    * </pre>
+    * 
+    * @var string
+    * @package callback
+    * @see x-editable
     */
     public $display = null;
     
     
     // --- X-editable events ---
     /**
-    * @var string a javascript function that will be invoked when editable element is initializd
+    * A javascript function that will be invoked when editable element is initialized
+    * @var string 
+    * @package event
+    * @see x-editable
     */    
     public $onInit;
     /**
-    * @var string a javascript function that will be invoked when editable form is shown
+    * @var string A javascript function that will be invoked when editable form is shown
+    * @package event
+    * @see x-editable
     */    
     public $onShown;
     /**
-    * @var string a javascript function that will be invoked when new value is saved
+    * @var string A javascript function that will be invoked when new value is saved
+    * @package event
+    * @see x-editable
     */    
     public $onSave;
     /**
-    * @var string a javascript function that will be invoked when editable form is hidden
+    * @var string A javascript function that will be invoked when editable form is hidden
+    * @package event
+    * @see x-editable
     */    
     public $onHidden;
     
     /**
-    * @var array all config options of x-editable
+    * @var array all config options of x-editable. See full list <a href="http://vitalets.github.com/x-editable/docs.html#editable">here</a>.
     */
     public $options = array();
     
@@ -145,27 +199,17 @@ class EditableField extends CWidget
 
     //themeUrl, theme and cssFile copied from CJuiWidget to allow include custom theme for jQuery UI
     /**
-     * @var string the root URL that contains all JUI theme folders.
-     * If this property is not set (default), Yii will publish the JUI package included in the zii release and use
-     * that to infer the root theme URL. You should set this property if you intend to use
-     * a theme that is not found in the JUI package included in zii.
-     * Note that under this URL, there must be a directory whose name is specified by {@link theme}.
-     * Do not append any slash character to the URL.
-     */
+     * @var string for jQuery UI only. The root URL that contains JUI theme folders.
+     * If not set, default Yii's theme will be used.
+    */
     public $themeUrl;
     /**
-     * @var string the JUI theme name. Defaults to 'base'. Make sure that under {@link themeUrl} there
-     * is a directory whose name is the same as this property value (case-sensitive).
+     * @var string for jQuery UI only. The JUI theme name. Defaults to 'base'.
      */
     public $theme='base';  
     /**
-     * @var mixed the theme CSS file name. Defaults to 'jquery-ui.css'.
-     * Note the file must exist under the URL specified by {@link themeUrl}/{@link theme}.
-     * If you need to include multiple theme CSS files (e.g. during development, you want to include individual
-     * plugin CSS files), you may set this property as an array of the CSS file names.
-     * This property can also be set as false, which means the widget will not include any theme CSS file,
-     * and it is your responsibility to explicitly include it somewhere else.
-     */
+     * @var mixed for jQuery UI only. The theme CSS file name. By default Yii's jquery UI css used.
+    */
     public $cssFile='jquery-ui.css';
     
     private $_prepareToAutotext = false; 
