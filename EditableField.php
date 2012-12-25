@@ -446,8 +446,13 @@ class EditableField extends CWidget
 
     public function registerAssets()
     {
+        $am = Yii::app()->getAssetManager();
+        $cs = Yii::app()->getClientScript();
+        $form = yii::app()->editable->form;
+        $mode = yii::app()->editable->mode;
+         
         // bootstrap
-        if(yii::app()->editable->form === EditableConfig::FORM_BOOTSTRAP) {
+        if($form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
                 $bootstrap->registerCoreCss();
                 $bootstrap->registerCoreScripts();
@@ -455,31 +460,31 @@ class EditableField extends CWidget
                 throw new CException('You need to setup Yii-bootstrap extension first.');
             }
             
-            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
-            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
+            $js = $mode === EditableConfig::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
             $css = 'bootstrap-editable.css';
         // jqueryui
-        } elseif(yii::app()->editable->form === EditableConfig::FORM_JQUERYUI) {
-            if(yii::app()->editable->container === EditableConfig::POPUP && Yii::getVersion() < '1.1.13' ) {
+        } elseif($form === EditableConfig::FORM_JQUERYUI) {
+            if($mode === EditableConfig::POPUP && Yii::getVersion() < '1.1.13' ) {
                 throw new CException('Popup editable with jQuery UI supported from jQuery UI 1.9 (Yii 1.1.13+)');
             }
             
             //register jquery ui
             $this->registerJQueryUI();
             
-            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable')); 
-            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable')); 
+            $js = $mode === EditableConfig::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
             $css = 'jqueryui-editable.css';
         // plain jQuery
         } else {
-            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jquery-editable')); 
-            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jquery-editable')); 
+            $js = $mode === EditableConfig::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
             $css = 'jquery-editable.css';             
             
             //register poshytip for popup version            
-            if(yii::app()->editable->container === EditableConfig::POPUP) {
-                Yii::app()->clientScript->registerScriptFile($assetsUrl . '/poshytip/jquery.poshytip.js');
-                Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/poshytip/tip-yellowsimple/tip-yellowsimple.css');
+            if($mode === EditableConfig::POPUP) {
+                $cs->registerScriptFile($assetsUrl . '/poshytip/jquery.poshytip.js');
+                $cs->registerCssFile($assetsUrl . '/poshytip/tip-yellowsimple/tip-yellowsimple.css');
             }
             
             //register jquery ui for datepicker
@@ -489,8 +494,8 @@ class EditableField extends CWidget
         }
         
         //register assets            
-        Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/css/'.$css);
-        Yii::app()->clientScript->registerScriptFile($assetsUrl . '/js/'.$js, CClientScript::POS_END);
+        $cs->registerCssFile($assetsUrl . '/css/'.$css);
+        $cs->registerScriptFile($assetsUrl . '/js/'.$js, CClientScript::POS_END);
 
         //TODO: include locale for datepicker
         //may be do it manually?
