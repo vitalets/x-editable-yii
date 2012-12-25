@@ -466,7 +466,7 @@ class EditableField extends CWidget
         // jqueryui
         } elseif($form === EditableConfig::FORM_JQUERYUI) {
             if($mode === EditableConfig::POPUP && Yii::getVersion() < '1.1.13' ) {
-                throw new CException('Popup editable with jQuery UI supported from jQuery UI 1.9 (Yii 1.1.13+)');
+                throw new CException('jQuery UI editable popup supported from Yii 1.1.13+');
             }
             
             //register jquery ui
