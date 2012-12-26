@@ -5,7 +5,7 @@
  * @author Vitaliy Potapov <noginsk@rambler.ru>
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
- * @version 0.1.0
+ * @version 1.0.0
 */  
   
 class EditableConfig extends CApplicationComponent
@@ -25,7 +25,7 @@ class EditableConfig extends CApplicationComponent
     /**
     * @var string editable container type: popup or inline
     */
-    public $container = self::POPUP; 
+    public $mode = self::POPUP; 
     
     /**
     * @var array defaults for editable configuration
@@ -39,7 +39,6 @@ class EditableConfig extends CApplicationComponent
     public function init() 
     {
         parent::init();
-        Yii::import('editable.*');
         if(!empty($this->defaults)) {
              $defaults = CJavaScript::encode($this->defaults);        
              Yii::app()->getClientScript()->registerScript(

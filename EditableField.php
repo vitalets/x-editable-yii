@@ -5,7 +5,7 @@
  * @author Vitaliy Potapov <noginsk@rambler.ru>
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
- * @version 0.1.0
+ * @version 1.0.0
 */
 
 /**
@@ -19,7 +19,7 @@ class EditableField extends CWidget
     
     // --- start of X-editable options ----
     /**
-    * @var CActiveRecord model of attribute to edit.
+    * @var CActiveRecord ActiveRecord to be updated.
     */
     public $model = null;
     /**
@@ -27,12 +27,12 @@ class EditableField extends CWidget
     */
     public $attribute = null;
     /**
-    * @var string type of editable widget. Can be 'text', 'textarea', 'select' etc.
+    * @var string type of editable widget. Can be `text`, `textarea`, `select`, `date`, `checklist`, etc.
     * @see x-editable
     */
     public $type = null;
     /**
-    * @var string url to submit value
+    * @var string url to submit value. Can be string or array containing Yii route, e.g. `array('site/updateUser')`
     * @see x-editable
     */
     public $url = null;
@@ -42,7 +42,7 @@ class EditableField extends CWidget
     */
     public $params = null;
     /**
-    * @var string css class of input
+    * @var string css class of input. If `null` - default X-editable value is used: `input-medium`
     * @see x-editable
     */
     public $inputclass = null;    
@@ -56,27 +56,28 @@ class EditableField extends CWidget
     */
     public $value = null;
     /**
-    * @var string placement of popup. Can be 'left', 'top', 'right', 'bottom'
+    * @var string placement of popup. Can be `left`, `top`, `right`, `bottom`. If `null` - default X-editable value is used: `top`
     * @see x-editable
     */
-    public $placement = 'top';
+    public $placement = null;
     
     /**
-    * @var string text shown on empty field
+    * @var string text shown on empty field. If `null` - default X-editable value is used: `Empty` 
     * @see x-editable
     */
-    public $emptytext = 'Empty';
+    public $emptytext = null;
     
     /**
-    * @var boolean will editable be initially disabled. It means editable plugin will be applied to element anyway.
-    * To disable applying 'editable' to element use 'apply' option
+    * @var boolean will editable be initially disabled. It means editable plugin will be applied to element, 
+    * but you should call `.editable('enable')` method to activate it.
+    * To totally disable applying 'editable' to element use **apply** option.
     * @see x-editable
     */
     public $disabled = false;
    
     //list
     /**
-    * @var mixed source data for 'select', 'checklist'. Can be url or php array.
+    * @var mixed source data for **select**, **checklist**. Can be url or php array.
     * @package list
     * @see x-editable
     */
@@ -84,13 +85,13 @@ class EditableField extends CWidget
 
     //date
     /**
-    * @var string format to send date on server
+    * @var string format to send date on server. If `null` - default X-editable value is used: `yyyy-mm-dd`.
     * @package date
     * @see x-editable
     */
-    public $format = 'yyyy-mm-dd';
+    public $format = null;
     /**
-    * @var string format to display date in element
+    * @var string format to display date in element. If `null` - equals to **format** option.
     * @package date
     * @see x-editable
     */
@@ -152,19 +153,47 @@ class EditableField extends CWidget
     */    
     public $onInit;
     /**
-    * @var string A javascript function that will be invoked when editable form is shown
+    * A javascript function that will be invoked when editable form is shown
+    * Example:
+    * <pre>
+    * 'onShown' => 'js: function() {
+    *     var $tip = $(this).data("editableContainer").tip();
+    *     $tip.find("input").val("overwriting value of input.");
+    * }'
+    * </pre>
+    * 
+    * @var string 
     * @package event
     * @see x-editable
     */    
     public $onShown;
     /**
-    * @var string A javascript function that will be invoked when new value is saved
+    * A javascript function that will be invoked when new value is saved
+    * Example:
+    * <pre>
+    * 'onSave' => 'js: function(e, params) {
+    *     alert("Saved value: " + params.newValue);
+    * }'
+    * </pre>
+    * 
+    * @var string 
     * @package event
     * @see x-editable
     */    
     public $onSave;
     /**
-    * @var string A javascript function that will be invoked when editable form is hidden
+    * A javascript function that will be invoked when editable form is hidden
+    * Example:
+    * <pre>
+    * 'onHidden' => 'js: function(e, reason) {
+    *    if(reason === "save" || reason === "cancel") {
+    *        //auto-open next editable
+    *        $(this).closest("tr").next().find(".editable").editable("show");
+    *    }
+    * }'
+    * </pre>
+    * 
+    * @var string 
     * @package event
     * @see x-editable
     */    
@@ -187,12 +216,12 @@ class EditableField extends CWidget
     
     /**
     * @var boolean whether to apply 'editable' to element. 
-    * If null will be automatically set to true for safe attributes and false for unsafe.
+    * If `null` - will be automatically set to `true` for **safe** attributes and `false` for **unsafe**.
     */
     public $apply = null; 
     
     /**
-    * @var string title of popup. If null will be generated automatically from attribute label.
+    * @var string title of popup. If `null` - will be generated automatically from attribute label.
     * Can have token {label} inside that will be replaced with actual attribute label.
     */
     public $title = null;
@@ -204,7 +233,7 @@ class EditableField extends CWidget
     */
     public $themeUrl;
     /**
-     * @var string for jQuery UI only. The JUI theme name. Defaults to 'base'.
+     * @var string for jQuery UI only. The JUI theme name.
      */
     public $theme='base';  
     /**
@@ -446,8 +475,13 @@ class EditableField extends CWidget
 
     public function registerAssets()
     {
+        $am = Yii::app()->getAssetManager();
+        $cs = Yii::app()->getClientScript();
+        $form = yii::app()->editable->form;
+        $mode = yii::app()->editable->mode;
+         
         // bootstrap
-        if(yii::app()->editable->form === EditableConfig::FORM_BOOTSTRAP) {
+        if($form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
                 $bootstrap->registerCoreCss();
                 $bootstrap->registerCoreScripts();
@@ -455,31 +489,31 @@ class EditableField extends CWidget
                 throw new CException('You need to setup Yii-bootstrap extension first.');
             }
             
-            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
-            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
+            $js = $mode === EditableConfig::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
             $css = 'bootstrap-editable.css';
         // jqueryui
-        } elseif(yii::app()->editable->form === EditableConfig::FORM_JQUERYUI) {
-            if(yii::app()->editable->container === EditableConfig::POPUP && Yii::getVersion() < '1.1.13' ) {
-                throw new CException('Popup editable with jQuery UI supported from jQuery UI 1.9 (Yii 1.1.13+)');
+        } elseif($form === EditableConfig::FORM_JQUERYUI) {
+            if($mode === EditableConfig::POPUP && Yii::getVersion() < '1.1.13' ) {
+                throw new CException('jQuery UI editable popup supported from Yii 1.1.13+');
             }
             
             //register jquery ui
             $this->registerJQueryUI();
             
-            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable')); 
-            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable')); 
+            $js = $mode === EditableConfig::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
             $css = 'jqueryui-editable.css';
         // plain jQuery
         } else {
-            $assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('editable.assets.jquery-editable')); 
-            $js = yii::app()->editable->container === EditableConfig::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jquery-editable')); 
+            $js = $mode === EditableConfig::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
             $css = 'jquery-editable.css';             
             
             //register poshytip for popup version            
-            if(yii::app()->editable->container === EditableConfig::POPUP) {
-                Yii::app()->clientScript->registerScriptFile($assetsUrl . '/poshytip/jquery.poshytip.js');
-                Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/poshytip/tip-yellowsimple/tip-yellowsimple.css');
+            if($mode === EditableConfig::POPUP) {
+                $cs->registerScriptFile($assetsUrl . '/poshytip/jquery.poshytip.js');
+                $cs->registerCssFile($assetsUrl . '/poshytip/tip-yellowsimple/tip-yellowsimple.css');
             }
             
             //register jquery ui for datepicker
@@ -489,8 +523,8 @@ class EditableField extends CWidget
         }
         
         //register assets            
-        Yii::app()->getClientScript()->registerCssFile($assetsUrl . '/css/'.$css);
-        Yii::app()->clientScript->registerScriptFile($assetsUrl . '/js/'.$js, CClientScript::POS_END);
+        $cs->registerCssFile($assetsUrl . '/css/'.$css);
+        $cs->registerScriptFile($assetsUrl . '/js/'.$js, CClientScript::POS_END);
 
         //TODO: include locale for datepicker
         //may be do it manually?
