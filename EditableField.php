@@ -19,7 +19,7 @@ class EditableField extends CWidget
     
     // --- start of X-editable options ----
     /**
-    * @var CActiveRecord model of attribute to edit.
+    * @var CActiveRecord ActiveRecord to be updated.
     */
     public $model = null;
     /**
@@ -27,12 +27,12 @@ class EditableField extends CWidget
     */
     public $attribute = null;
     /**
-    * @var string type of editable widget. Can be 'text', 'textarea', 'select' etc.
+    * @var string type of editable widget. Can be `text`, `textarea`, `select`, `date`, `checklist`, etc.
     * @see x-editable
     */
     public $type = null;
     /**
-    * @var string url to submit value
+    * @var string url to submit value. Can be string or array containing Yii route, e.g. `array('site/updateUser')`
     * @see x-editable
     */
     public $url = null;
@@ -42,7 +42,7 @@ class EditableField extends CWidget
     */
     public $params = null;
     /**
-    * @var string css class of input
+    * @var string css class of input. If `null` - default X-editable value is used: `input-medium`
     * @see x-editable
     */
     public $inputclass = null;    
@@ -56,27 +56,28 @@ class EditableField extends CWidget
     */
     public $value = null;
     /**
-    * @var string placement of popup. Can be 'left', 'top', 'right', 'bottom'
+    * @var string placement of popup. Can be `left`, `top`, `right`, `bottom`. If `null` - default X-editable value is used: `top`
     * @see x-editable
     */
-    public $placement = 'top';
+    public $placement = null;
     
     /**
-    * @var string text shown on empty field
+    * @var string text shown on empty field. If `null` - default X-editable value is used: `Empty` 
     * @see x-editable
     */
-    public $emptytext = 'Empty';
+    public $emptytext = null;
     
     /**
-    * @var boolean will editable be initially disabled. It means editable plugin will be applied to element anyway.
-    * To disable applying 'editable' to element use 'apply' option
+    * @var boolean will editable be initially disabled. It means editable plugin will be applied to element, 
+    * but you should call `.editable('enable')` method to activate it.
+    * To totally disable applying 'editable' to element use **apply** option.
     * @see x-editable
     */
     public $disabled = false;
    
     //list
     /**
-    * @var mixed source data for 'select', 'checklist'. Can be url or php array.
+    * @var mixed source data for **select**, **checklist**. Can be url or php array.
     * @package list
     * @see x-editable
     */
@@ -84,13 +85,13 @@ class EditableField extends CWidget
 
     //date
     /**
-    * @var string format to send date on server
+    * @var string format to send date on server. If `null` - default X-editable value is used: `yyyy-mm-dd`.
     * @package date
     * @see x-editable
     */
-    public $format = 'yyyy-mm-dd';
+    public $format = null;
     /**
-    * @var string format to display date in element
+    * @var string format to display date in element. If `null` - equals to **format** option.
     * @package date
     * @see x-editable
     */
@@ -215,12 +216,12 @@ class EditableField extends CWidget
     
     /**
     * @var boolean whether to apply 'editable' to element. 
-    * If null will be automatically set to true for safe attributes and false for unsafe.
+    * If `null` - will be automatically set to `true` for **safe** attributes and `false` for **unsafe**.
     */
     public $apply = null; 
     
     /**
-    * @var string title of popup. If null will be generated automatically from attribute label.
+    * @var string title of popup. If `null` - will be generated automatically from attribute label.
     * Can have token {label} inside that will be replaced with actual attribute label.
     */
     public $title = null;
@@ -232,7 +233,7 @@ class EditableField extends CWidget
     */
     public $themeUrl;
     /**
-     * @var string for jQuery UI only. The JUI theme name. Defaults to 'base'.
+     * @var string for jQuery UI only. The JUI theme name.
      */
     public $theme='base';  
     /**
