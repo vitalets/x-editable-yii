@@ -2,7 +2,7 @@ X-editable for Yii
 ======================
 
 Bundle of widgets and server-side component for creating editable elements in [Yii](http://www.yiiframework.com) application.
-This extension comes instead of previous [yii-bootstrap-editable](http://www.yiiframework.com/extension/yii-bootstrap-editable) that was upgraded to [X-editable](http://vitalets.github.com/x-editable) library.
+This extension comes instead of previous [yii-bootstrap-editable](http://www.yiiframework.com/extension/yii-bootstrap-editable) that was upgraded to [X-editable](http://vitalets.github.com/x-editable) library.  
 Main changes are:
 
 * support of several libraries: Twitter Bootstrap, jQuery UI and pure jQuery. Now it works with Yii out of box
@@ -10,7 +10,7 @@ Main changes are:
 * update of related models
 
 ##Demo & Documentation
-Please see **http://x-editable.demopage.com**  
+Please see **[x-editable.demopage.ru](http://x-editable.demopage.ru)**
 
 ##Issues
 Feel free to open issue if you find bug or have an idea.
