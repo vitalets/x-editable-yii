@@ -152,19 +152,47 @@ class EditableField extends CWidget
     */    
     public $onInit;
     /**
-    * @var string A javascript function that will be invoked when editable form is shown
+    * A javascript function that will be invoked when editable form is shown
+    * Example:
+    * <pre>
+    * 'onShown' => 'js: function() {
+    *     var $tip = $(this).data("editableContainer").tip();
+    *     $tip.find("input").val("overwriting value of input.");
+    * }'
+    * </pre>
+    * 
+    * @var string 
     * @package event
     * @see x-editable
     */    
     public $onShown;
     /**
-    * @var string A javascript function that will be invoked when new value is saved
+    * A javascript function that will be invoked when new value is saved
+    * Example:
+    * <pre>
+    * 'onSave' => 'js: function(e, params) {
+    *     alert("Saved value: " + params.newValue);
+    * }'
+    * </pre>
+    * 
+    * @var string 
     * @package event
     * @see x-editable
     */    
     public $onSave;
     /**
-    * @var string A javascript function that will be invoked when editable form is hidden
+    * A javascript function that will be invoked when editable form is hidden
+    * Example:
+    * <pre>
+    * 'onHidden' => 'js: function(e, reason) {
+    *    if(reason === "save" || reason === "cancel") {
+    *        //auto-open next editable
+    *        $(this).closest("tr").next().find(".editable").editable("show");
+    *    }
+    * }'
+    * </pre>
+    * 
+    * @var string 
     * @package event
     * @see x-editable
     */    
