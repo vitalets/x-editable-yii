@@ -17,7 +17,7 @@ Feel free to open issue if you find bug or have an idea.
 Thanks for your feedback!
 
 ##Contribution
-Submit your ideas to `dev` branch. Thank you!
+Submit your ideas/solutions to `dev` branch. Thank you!
 
 ## License
 Copyright (c) 2012 Vitaliy Potapov  
