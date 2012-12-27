@@ -333,7 +333,7 @@ class EditableField extends CWidget
         $htmlOptions = array(
             'href'      => '#',
             'rel'       => $this->getSelector(),
-            'data-pk'   => $this->model->primaryKey,
+            'data-pk'   => is_array($this->model->primaryKey) ? CJSON::encode($this->model->primaryKey) : $this->model->primaryKey,
         );
 
         //if preparing to autotext we need to define value directly in data-value.

@@ -4,6 +4,7 @@ X-editable-yii changelog
 
 Version 1.0.1  wip
 ----------------------------
+[enh] Added support of composite primary keys (vitalets)
 [enh] Added italian messages (vitalets)
 
 
