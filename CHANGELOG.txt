@@ -2,6 +2,11 @@ X-editable-yii changelog
 ============================
 
 
+Version 1.0.1  wip
+----------------------------
+[enh] Added italian messages (vitalets)
+
+
 Version 1.0.0  Dec 26, 2012
 ----------------------------
 Initial release.
