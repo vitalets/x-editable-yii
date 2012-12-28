@@ -4,8 +4,10 @@ X-editable-yii changelog
 
 Version 1.0.1  wip
 ----------------------------
+[chg] EditableDetailView emptytext no more taken from nullDisplay option (vitalets)
+[bug] Disable loading Yii's css for EditableDetailView in bootstrap mode (vitalets)
 [enh] Added support of composite primary keys (vitalets)
-[enh] Added italian messages (vitalets)
+[enh] Added Italian messages (vitalets)
 
 
 Version 1.0.0  Dec 26, 2012

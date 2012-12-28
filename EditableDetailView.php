@@ -63,19 +63,21 @@ class EditableDetailView extends CDetailView
                 $options['editable']['params'] = $this->params;
             }            
 
-            $editableOptions = CMap::mergeArray($options['editable'], array(
+            //option to be passed into EditableField
+            $widgetOptions = array(
                 'model'     => $this->data,
-                'attribute' => $options['name'],
-                'emptytext' => ($this->nullDisplay === null) ? Yii::t('zii', 'Not set') : strip_tags($this->nullDisplay),
-            ));
+                'attribute' => $options['name']
+            );
             
-            //if value in detailview options provided, set text directly (as value means text)
+            //if value in detailview options provided, set text directly (as value here means text)
             if(isset($options['value']) && $options['value'] !== null) {
-                $editableOptions['text'] = $templateData['{value}'];
-                $editableOptions['encode'] = false;
-            }
+                $widgetOptions['text'] = $templateData['{value}'];
+                $widgetOptions['encode'] = false;
+            }            
+            
+            $widgetOptions = CMap::mergeArray($widgetOptions, $options['editable']);
 
-            $widget = $this->controller->createWidget('EditableField', $editableOptions);
+            $widget = $this->controller->createWidget('EditableField', $widgetOptions);
             
             //'apply' can be changed during init of widget (e.g. if related model and unsafe attribute)
             if($widget->apply) {
