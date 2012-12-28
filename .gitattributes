@@ -1,4 +1,4 @@
-//exclude some stuff from zip
-bump-ver export-ignore
+.gitattributes export-ignore
 .gitignore export-ignore
+bump-ver export-ignore
 composer.json export-ignore
