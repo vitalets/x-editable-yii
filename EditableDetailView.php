@@ -37,6 +37,8 @@ class EditableDetailView extends CDetailView
         //set bootstrap css
         if(yii::app()->editable->form === EditableConfig::FORM_BOOTSTRAP) {
             $this->htmlOptions = array('class'=> 'table table-bordered table-striped table-hover');
+            //disable loading Yii's css for bootstrap
+            $this->cssFile = false;
         }
         
         parent::init();
