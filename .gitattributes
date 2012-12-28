@@ -1,0 +1,4 @@
+//exclude some stuff from zip
+bump-ver export-ignore
+.gitignore export-ignore
+composer.json export-ignore

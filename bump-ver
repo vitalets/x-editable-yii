@@ -1,0 +1,9 @@
+if [ $# -eq 0 ]
+then
+echo "You should provide version"
+exit 1
+fi
+
+sed -i "s/version [0-9]\+\.[0-9]\+\.[0-9]\+/version $1/" *.php
+
+echo "Bump version $1"
