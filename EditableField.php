@@ -215,8 +215,8 @@ class EditableField extends CWidget
     public $encode = true;
     
     /**
-    * @var boolean whether to apply 'editable' to element. 
-    * If `null` - will be automatically set to `true` for **safe** attributes and `false` for **unsafe**.
+    * @var boolean whether to apply 'editable' js plugin to element. 
+    * Only **safe** attributes become editable.
     */
     public $apply = null; 
     
@@ -261,16 +261,16 @@ class EditableField extends CWidget
         
         $originalText = strlen($this->text) ? $this->text : CHtml::value($this->model, $this->attribute);
         
-        //if apply set to false --> just print text
+        //if apply set to false --> just render text, no js plugin applied
         if($this->apply === false) {
             $this->text = $originalText;
             return;
         }
         
-        
         //resolve model and attribute for related model
         $resolved = self::resolveModel($this->model, $this->attribute);    
         if($resolved === false) {
+            //cannot resolve model (maybe no related models for this record)
             $this->apply = false;
             $this->text = $originalText;
             return;
@@ -278,21 +278,10 @@ class EditableField extends CWidget
             list($this->model, $this->attribute) = $resolved;
         }       
         
-        //commented to be able to work with virtual attributes
-        //see https://github.com/vitalets/yii-bootstrap-editable/issues/15
-        /*
-        if (!$this->model->hasAttribute($this->attribute)) {
-            throw new CException('Model "'.get_class($this->model).'" does not have attribute "'.$this->attribute.'"');
-        } 
-        */          
-
-        //if `apply` not defined directly, set it to true only for safe attributes
-        if($this->apply === null) {
-            $this->apply = $this->model->isAttributeSafe($this->attribute);
-        }
-        
-        //if apply = false --> just print text (see 'run' method)
-        if ($this->apply === false) {
+        //for security reason only safe attributes can be editable (e.g. defined in rules of model)
+        //just print text (see 'run' method)
+        if (!$this->model->isAttributeSafe($this->attribute)) {
+            $this->apply = false;
             $this->text = $originalText;
             return;
         }        
@@ -333,10 +322,11 @@ class EditableField extends CWidget
         $htmlOptions = array(
             'href'      => '#',
             'rel'       => $this->getSelector(),
-            'data-pk'   => is_array($this->model->primaryKey) ? CJSON::encode($this->model->primaryKey) : $this->model->primaryKey,
+            'data-pk'   => $this->model->primaryKey,
         );
 
-        //if preparing to autotext we need to define value directly in data-value.
+        //if input type assumes autotext (e.g. select) we define value directly in data-value 
+        //and do not fill element contents
         if ($this->_prepareToAutotext) {
             //for date we use 'format' to put it into value (if text not defined)
             if ($this->type == 'date') {
@@ -539,7 +529,7 @@ class EditableField extends CWidget
     
     public function run()
     {
-        if($this->apply) {
+        if($this->apply !== false) {
             $this->registerClientScript();
             $this->renderLink();
         } else {
