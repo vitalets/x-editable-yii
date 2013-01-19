@@ -261,12 +261,14 @@ class EditableField extends CWidget
         
         $originalText = strlen($this->text) ? $this->text : CHtml::value($this->model, $this->attribute);
         
-        //if apply set to false --> just render text, no js plugin applied
+        //if apply set manually to false --> just render text, no js plugin applied
         if($this->apply === false) {
             $this->text = $originalText;
             return;
+        } else {
+            $this->apply = true;
         }
-        
+
         //resolve model and attribute for related model
         $resolved = self::resolveModel($this->model, $this->attribute);    
         if($resolved === false) {
@@ -277,7 +279,7 @@ class EditableField extends CWidget
         } else {
             list($this->model, $this->attribute) = $resolved;
         }       
-        
+
         //for security reason only safe attributes can be editable (e.g. defined in rules of model)
         //just print text (see 'run' method)
         if (!$this->model->isAttributeSafe($this->attribute)) {
@@ -285,7 +287,7 @@ class EditableField extends CWidget
             $this->text = $originalText;
             return;
         }        
-        
+
         /*
          try to detect type from metadata if not set                
         */
