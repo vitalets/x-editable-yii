@@ -480,6 +480,8 @@ class EditableField extends CWidget
         $form = yii::app()->editable->form;
         $mode = yii::app()->editable->mode;
          
+        $assetsDir = __DIR__ . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR;
+
         // bootstrap
         if($form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
@@ -489,7 +491,7 @@ class EditableField extends CWidget
                 throw new CException('You need to setup Yii-bootstrap extension first.');
             }
             
-            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable')); 
+            $assetsUrl = $am->publish($assetsDir . 'bootstrap-editable');
             $js = $mode === EditableConfig::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
             $css = 'bootstrap-editable.css';
         // jqueryui
@@ -501,12 +503,12 @@ class EditableField extends CWidget
             //register jquery ui
             $this->registerJQueryUI();
             
-            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable')); 
+            $assetsUrl = $am->publish($assetsDir . 'jqueryui-editable'); 
             $js = $mode === EditableConfig::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
             $css = 'jqueryui-editable.css';
         // plain jQuery
         } else {
-            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jquery-editable')); 
+            $assetsUrl = $am->publish($assetsDir . 'jquery-editable'); 
             $js = $mode === EditableConfig::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
             $css = 'jquery-editable.css';             
             
