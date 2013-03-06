@@ -8,7 +8,7 @@
  * @version 1.0.0
 */
  
-Yii::import('editable.EditableField');
+Yii::import('EditableField');
 Yii::import('zii.widgets.CDetailView');
 
 /**
