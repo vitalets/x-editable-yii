@@ -19,6 +19,14 @@
  * @version $Id: $
  */
 return array (
-  'Enter' => 'Renseigner',
-  'Select' => 'Choisir',
+  'Enter' => 'Edition',
+  'Select' => 'Sélection',
+  'You should provide modelClass in constructor of EditableSaver.'=>'La classe du modèle doit être donné en tant que paramètre au constructeur d\'EditableSaver',
+  'Property "attribute" should be defined.'=>'La propriété "attribute" doit être définie',
+  'Property "primaryKey" should be defined.'=>'La propriété "primaryKey" doit être définie',
+  'Model {class} not found by primary key "{pk}"'=>'Le modèle {class} n\'est pas trouvé pour la clef primaire "{pk}"',
+  'Model {class} does not have attribute "{attr}"'=>'Le modèle {class} ne possède pas l\'attribut "{attr}"',
+  'Model {class} rules do not allow to update attribute "{attr}"'=>'Le modèle {class} n\'autorise pas la mise à jour de l\'attribut "{attr}"',
+  'Error while saving record!'=>'Erreur lors de la sauvegarde!',
+
 );
