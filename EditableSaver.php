@@ -1,7 +1,7 @@
 <?php
 /**
  * EditableSaver class file.
- * 
+ *
  * @author Vitaliy Potapov <noginsk@rambler.ru>
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
@@ -10,9 +10,9 @@
 
 /**
 * EditableSaver helps to update model by editable widget submit request.
-* 
+*
 * @package saver
-*/ 
+*/
 class EditableSaver extends CComponent
 {
     /**
@@ -46,11 +46,11 @@ class EditableSaver extends CComponent
      * @var CActiveRecord
      */
     public $model;
-    
+
     /**
      * @var mixed new value of attribute
      */
-    public $value;    
+    public $value;
 
     /**
      * http status code returned in case of error
@@ -59,11 +59,11 @@ class EditableSaver extends CComponent
 
     /**
     * name of changed attributes. Used when saving model
-    * 
+    *
     * @var mixed
     */
     protected $changedAttributes = array();
-    
+
     /**
      * Constructor
      *
@@ -73,7 +73,7 @@ class EditableSaver extends CComponent
     public function __construct($modelClass)
     {
         if (empty($modelClass)) {
-            throw new CException(Yii::t('editable', 'You should provide modelClass in constructor of EditableSaver.'));
+            throw new CException(Yii::t('EditableSaver.editable', 'You should provide modelClass in constructor of EditableSaver.'));
         }
         $this->modelClass = ucfirst($modelClass);
     }
@@ -91,37 +91,41 @@ class EditableSaver extends CComponent
 
         //checking params
         if (empty($this->attribute)) {
-            throw new CException(Yii::t('editable','Property "attribute" should be defined.'));
+            throw new CException(Yii::t('EditableSaver.editable','Property "attribute" should be defined.'));
         }
         if (empty($this->primaryKey)) {
-            throw new CException(Yii::t('editable','Property "primaryKey" should be defined.'));
+            throw new CException(Yii::t('EditableSaver.editable','Property "primaryKey" should be defined.'));
         }
 
         //loading model
         $this->model = CActiveRecord::model($this->modelClass)->findByPk($this->primaryKey);
         if (!$this->model) {
-            throw new CException(Yii::t('editable', 'Model {class} not found by primary key "{pk}"', array(
+            throw new CException(Yii::t('EditableSaver.editable', 'Model {class} not found by primary key "{pk}"', array(
                '{class}'=>get_class($this->model), '{pk}'=>$this->primaryKey)));
         }
-        
+
         //set scenario
         $this->model->setScenario($this->scenario);
-        
+
+        //commented to be able to work with virtual attributes
+        //see https://github.com/vitalets/yii-bootstrap-editable/issues/15
+        /*
         //is attribute exists
         if (!$this->model->hasAttribute($this->attribute)) {
-            throw new CException(Yii::t('editable', 'Model {class} does not have attribute "{attr}"', array(
-              '{class}'=>get_class($this->model), '{attr}'=>$this->attribute)));            
+            throw new CException(Yii::t('EditableSaver.editable', 'Model {class} does not have attribute "{attr}"', array(
+              '{class}'=>get_class($this->model), '{attr}'=>$this->attribute)));
         }
-
+        */
+        
         //is attribute safe
         if (!$this->model->isAttributeSafe($this->attribute)) {
             throw new CException(Yii::t('editable', 'Model {class} rules do not allow to update attribute "{attr}"', array(
-              '{class}'=>get_class($this->model), '{attr}'=>$this->attribute))); 
+                    '{class}'=>get_class($this->model), '{attr}'=>$this->attribute)));
         }
 
         //setting new value
         $this->setAttribute($this->attribute, $this->value);
-        
+
         //validate attribute
         $this->model->validate(array($this->attribute));
         $this->checkErrors();
@@ -129,13 +133,13 @@ class EditableSaver extends CComponent
         //trigger beforeUpdate event
         $this->beforeUpdate();
         $this->checkErrors();
-        
+
         //saving (no validation, only changed attributes)
         if ($this->model->save(false, $this->changedAttributes)) {
             //trigger afterUpdate event
             $this->afterUpdate();
         } else {
-            $this->error(Yii::t('editable', 'Error while saving record!')); 
+            $this->error(Yii::t('EditableSaver.editable', 'Error while saving record!'));
         }
     }
 
@@ -149,14 +153,14 @@ class EditableSaver extends CComponent
         if ($this->model->hasErrors()) {
             $msg = array();
             foreach($this->model->getErrors() as $attribute => $errors) {
-               $msg = array_merge($msg, $errors); 
+               $msg = array_merge($msg, $errors);
             }
             //todo: show several messages. should be checked in x-editable js
             //$this->error(join("\n", $msg));
             $this->error($msg[0]);
         }
-    }     
-    
+    }
+
     /**
      * errors as CHttpException
      * @param $msg
@@ -165,12 +169,12 @@ class EditableSaver extends CComponent
     public function error($msg)
     {
         throw new CHttpException($this->errorHttpCode, $msg);
-    }  
-    
+    }
+
     /**
     * setting new value of attribute.
     * Attrubute name also stored in array to save only changed attributes
-    * 
+    *
     * @param mixed $name
     * @param mixed $value
     */
@@ -180,8 +184,8 @@ class EditableSaver extends CComponent
          if(!in_array($name, $this->changedAttributes)) {
              $this->changedAttributes[] = $name;
          }
-    }      
-    
+    }
+
     /**
      * This event is raised before the update is performed.
      * @param CModelEvent $event the event parameter
