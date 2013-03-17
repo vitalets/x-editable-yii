@@ -5,7 +5,7 @@
  * @author Vitaliy Potapov <noginsk@rambler.ru>
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
- * @version 1.0.0
+ * @version 1.1.0
 */
 
 /**
