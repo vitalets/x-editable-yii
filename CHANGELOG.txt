@@ -2,7 +2,7 @@ X-editable-yii changelog
 ============================
 
 
-Version 1.0.1  wip
+Version 1.1.0  wip
 ----------------------------
 [bug] If apply = true, attribute can be unsafe (vitalets)
 [enh] Added composer support (vitalets)
