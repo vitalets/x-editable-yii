@@ -21,12 +21,20 @@ class EditableDetailView extends CDetailView
     /**
     * @var string submit url for all editables in detailview
     */
-    public $url = null;
+    /*
+     commented due to using magic methods and setting any of default EditableField param 
+     from top level config of EditableDetailView
+    */  
+    //public $url = null;
 
     /**
     * @var array additional params to send on server
     */
-    public $params = null;
+    /*
+     commented due to using magic methods and setting any of default EditableField param 
+     from top level config of EditableDetailView
+    */     
+    //public $params = null;
 
     public function init()
     {
@@ -53,19 +61,10 @@ class EditableDetailView extends CDetailView
             //ensure $options['editable'] is array
             if(!isset($options['editable'])) $options['editable'] = array();
 
-            $options['editable'] = CMap::mergeArray($options['editable'], $this->_data);
+            //merge options with defaults: url, params, etc. 
+            $options['editable'] = CMap::mergeArray($this->_data, $options['editable']);
 
-            //take common url if not defined for particular item and not related model
-            if (!isset($options['editable']['url']) && strpos($options['name'], '.') === false) {
-                $options['editable']['url'] = $this->url;
-            }
-
-            //take common params if not defined for particular item
-            if (!isset($options['editable']['params'])) {
-                $options['editable']['params'] = $this->params;
-            }
-
-            //option to be passed into EditableField
+            //options to be passed into EditableField (constructed from $options['editable'])
             $widgetOptions = array(
                 'model'     => $this->data,
                 'attribute' => $options['name']
@@ -81,7 +80,7 @@ class EditableDetailView extends CDetailView
 
             $widget = $this->controller->createWidget('EditableField', $widgetOptions);
 
-            //'apply' can be changed during init of widget (e.g. if related model and unsafe attribute)
+            //'apply' maybe changed during init of widget (e.g. if related model has unsafe attribute)
             if($widget->apply) {
                 ob_start();
                 $widget->run();

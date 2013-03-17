@@ -4,6 +4,7 @@ X-editable-yii changelog
 
 Version 1.1.0  wip
 ----------------------------
+[enh #16] EditableDetailView defaults + french translation (mdeweerd) 
 [bug] If apply = true, attribute can be unsafe (vitalets)
 [enh] Added composer support (vitalets)
 [chg] EditableDetailView emptytext no more taken from nullDisplay option (vitalets)
