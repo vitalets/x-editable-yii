@@ -39,11 +39,12 @@ class EditableConfig extends CApplicationComponent
     public function init() 
     {
         parent::init();
-        if(!empty($this->defaults)) {
-             $defaults = CJavaScript::encode($this->defaults);        
-             Yii::app()->getClientScript()->registerScript(
-                'editable-defaults', 'if($.fn.editable) $.extend($.fn.editable.defaults, '.$defaults.');'
-             );
-        }
+        if(empty($this->defaults)) $this->defaults = array();
+        //copy mode from first level config to defaults (for compability)
+        if(empty($this->defaults['mode'])) $this->defaults['mode'] = $this->mode;
+        $defaults = CJavaScript::encode($this->defaults);        
+        Yii::app()->getClientScript()->registerScript(
+           'editable-defaults', 'if($.fn.editable) $.extend($.fn.editable.defaults, '.$defaults.');'
+        );
     }
 }

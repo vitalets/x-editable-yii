@@ -47,6 +47,11 @@ class EditableField extends CWidget
     */
     public $inputclass = null;
     /**
+    * @var string mode of input: `inline` | `popup`. If not set - default X-editable value is used: `popup`.
+    * @see x-editable
+    */
+    public $mode = null;
+    /**
     * @var string text to be shown as element content
     */
     public $text = null;
@@ -387,8 +392,8 @@ class EditableField extends CWidget
             'title' => CHtml::encode($this->title),
         );
 
-        //options set directly in config
-        foreach(array('placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat') as $option) {
+        //simple options set directly from config
+        foreach(array('mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat') as $option) {
             if ($this->$option) {
                 $options[$option] = $this->$option;
             }
@@ -470,7 +475,7 @@ class EditableField extends CWidget
         $am = Yii::app()->getAssetManager();
         $cs = Yii::app()->getClientScript();
         $form = yii::app()->editable->form;
-        $mode = yii::app()->editable->mode;
+        $mode = $this->mode ? $this->mode : yii::app()->editable->defaults['mode'];
 
         // bootstrap
         if($form === EditableConfig::FORM_BOOTSTRAP) {
@@ -482,7 +487,7 @@ class EditableField extends CWidget
             }
 
             $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable'));
-            $js = $mode === EditableConfig::POPUP ? 'bootstrap-editable.js' : 'bootstrap-editable-inline.js';
+            $js = 'bootstrap-editable.js';
             $css = 'bootstrap-editable.css';
         // jqueryui
         } elseif($form === EditableConfig::FORM_JQUERYUI) {
@@ -494,18 +499,19 @@ class EditableField extends CWidget
             $this->registerJQueryUI();
 
             $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable'));
-            $js = $mode === EditableConfig::POPUP ? 'jqueryui-editable.js' : 'jqueryui-editable-inline.js';
+            $js = 'jqueryui-editable.js';
             $css = 'jqueryui-editable.css';
         // plain jQuery
         } else {
             $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jquery-editable'));
-            $js = $mode === EditableConfig::POPUP ? 'jquery-editable-poshytip.js' : 'jquery-editable-inline.js';
+            $js = 'jquery-editable-poshytip.js';
             $css = 'jquery-editable.css';
 
-            //register poshytip for popup version
+            //publish & register poshytip for popup version
             if($mode === EditableConfig::POPUP) {
-                $cs->registerScriptFile($assetsUrl . '/poshytip/jquery.poshytip.js');
-                $cs->registerCssFile($assetsUrl . '/poshytip/tip-yellowsimple/tip-yellowsimple.css');
+                $poshytipUrl = $am->publish(Yii::getPathOfAlias('editable.assets.poshytip'));
+                $cs->registerScriptFile($poshytipUrl . '/jquery.poshytip.js');
+                $cs->registerCssFile($poshytipUrl . '/tip-yellowsimple/tip-yellowsimple.css');
             }
 
             //register jquery ui for datepicker
@@ -515,9 +521,15 @@ class EditableField extends CWidget
         }
 
         //register assets
-        $cs->registerCssFile($assetsUrl . '/css/'.$css);
-        $cs->registerScriptFile($assetsUrl . '/js/'.$js, CClientScript::POS_END);
+        $cs->registerCssFile($assetsUrl.'/css/'.$css);
+        $cs->registerScriptFile($assetsUrl.'/js/'.$js, CClientScript::POS_END);
 
+        //combodate: need to include moment.js
+        if($this->type == 'combodate') {
+            $momentUrl = $am->publish(Yii::getPathOfAlias('editable.assets.moment'));
+            $cs->registerScriptFile($momentUrl.'/moment.min.js');          
+        }
+        
         //TODO: include locale for datepicker
         //may be do it manually?
         /*
