@@ -101,6 +101,19 @@ class EditableField extends CWidget
     * @see x-editable
     */
     public $viewformat = null;
+    /**
+    * @var string template for **combodate** input. For details see http://vitalets.github.com/x-editable/docs.html#combodate.
+    * @package combodate
+    * @see x-editable
+    */
+    public $template = null;        
+    
+    /**
+    * @var array full config for **combodate** input. For details see http://vitalets.github.com/combodate/#docs
+    * @package combodate
+    * @see x-editable
+    */
+    public $combodate = null;    
 
     //methods
     /**
@@ -308,7 +321,7 @@ class EditableField extends CWidget
         /*
         If set this flag to true --> element content will stay empty and value will be rendered to data-value attribute to apply autotext.
         */
-        $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') && in_array($this->type, array('select', 'checklist', 'date', 'dateui'));
+        $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') && in_array($this->type, array('select', 'checklist', 'date', 'dateui', 'combodate'));
 
         /*
          If text not defined, generate it from model attribute for types except lists ('select', 'checklist' etc)
@@ -393,7 +406,9 @@ class EditableField extends CWidget
         );
 
         //simple options set directly from config
-        foreach(array('mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat') as $option) {
+        foreach(array('mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat', 'template',
+                      'combodate'
+               ) as $option) {
             if ($this->$option) {
                 $options[$option] = $this->$option;
             }
