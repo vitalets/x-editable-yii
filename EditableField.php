@@ -107,14 +107,25 @@ class EditableField extends CWidget
     * @see x-editable
     */
     public $template = null;        
-    
     /**
     * @var array full config for **combodate** input. For details see http://vitalets.github.com/combodate/#docs
     * @package combodate
     * @see x-editable
     */
     public $combodate = null;    
-
+    /**
+    * @var string separator used to display tags.
+    * @package select2
+    * @see x-editable
+    */
+    public $viewseparator = null;        
+    /**
+    * @var array full config for **select2** input. For details see http://ivaynberg.github.com/select2
+    * @package select2
+    * @see x-editable
+    */
+    public $select2 = null;    
+    
     //methods
     /**
     * A javascript function that will be invoked to validate value.
@@ -321,7 +332,8 @@ class EditableField extends CWidget
         /*
         If set this flag to true --> element content will stay empty and value will be rendered to data-value attribute to apply autotext.
         */
-        $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') && in_array($this->type, array('select', 'checklist', 'date', 'dateui', 'combodate'));
+        $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') 
+         && in_array($this->type, array('select', 'checklist', 'date', 'dateui', 'combodate', 'select2'));
 
         /*
          If text not defined, generate it from model attribute for types except lists ('select', 'checklist' etc)
@@ -407,7 +419,7 @@ class EditableField extends CWidget
 
         //simple options set directly from config
         foreach(array('mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat', 'template',
-                      'combodate'
+                      'combodate', 'select2', 'viewseparator'
                ) as $option) {
             if ($this->$option) {
                 $options[$option] = $this->$option;
@@ -539,11 +551,18 @@ class EditableField extends CWidget
         $cs->registerCssFile($assetsUrl.'/css/'.$css);
         $cs->registerScriptFile($assetsUrl.'/js/'.$js, CClientScript::POS_END);
 
-        //combodate: need to include moment.js
+        //include moment.js if needed 
         if($this->type == 'combodate') {
             $momentUrl = $am->publish(Yii::getPathOfAlias('editable.assets.moment'));
             $cs->registerScriptFile($momentUrl.'/moment.min.js');          
         }
+        
+        //include select2 if needed
+        if($this->type == 'select2') {
+            $select2Url = $am->publish(Yii::getPathOfAlias('editable.assets.select2'));
+            $cs->registerScriptFile($select2Url.'/select2.min.js');  
+            $cs->registerCssFile($select2Url.'/select2.css');        
+        }        
         
         //TODO: include locale for datepicker
         //may be do it manually?
