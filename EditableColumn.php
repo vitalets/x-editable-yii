@@ -73,7 +73,8 @@ class EditableColumn extends CDataColumn
         }
         
         //manually make selector non unique to match all cells in column
-        $selector = get_class($widget->model) . '_' . $widget->attribute;
+        //model class may be namespaced, see https://github.com/vitalets/x-editable-yii/issues/9
+        $selector = str_replace('\\', '_', get_class($widget->model)) . '_' . $widget->attribute;
         $widget->htmlOptions['rel'] = $selector;
 
         //can't call run() as it registers clientScript

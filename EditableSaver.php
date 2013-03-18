@@ -75,7 +75,14 @@ class EditableSaver extends CComponent
         if (empty($modelClass)) {
             throw new CException(Yii::t('EditableSaver.editable', 'You should provide modelClass in constructor of EditableSaver.'));
         }
-        $this->modelClass = ucfirst($modelClass);
+        
+        $this->modelClass = $modelClass;
+        
+        //for non-namespaced models do ucfirst (for backwards compability)
+        //see https://github.com/vitalets/x-editable-yii/issues/9  
+        if(strpos($this->modelClass, '\\') === false) {
+            $this->modelClass = ucfirst($this->modelClass);
+        }
     }
 
     /**
