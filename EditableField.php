@@ -354,8 +354,12 @@ class EditableField extends CWidget
         $htmlOptions = array(
             'href'      => '#',
             'rel'       => $this->getSelector(),
-            'data-pk'   => $this->model->primaryKey,
         );
+        
+        //set data-pk only for existing records
+        if(!$this->model->isNewRecord) {
+           $htmlOptions['data-pk'] = is_array($this->model->primaryKey) ? CJSON::encode($this->model->primaryKey) : $this->model-primaryKey; 
+        }
 
         //if input type assumes autotext (e.g. select) we define value directly in data-value 
         //and do not fill element contents
@@ -603,8 +607,19 @@ class EditableField extends CWidget
 
     public function getSelector()
     {
-        return get_class($this->model) . '_' . $this->attribute . ($this->model->primaryKey ? '_' . $this->model->primaryKey : '_new');
+        if($this->model->isNewRecord) {
+            $pk = 'new';
+        } else {
+            $pk = $this->model->primaryKey;
+            //support of composite keys: convert to string
+            if(is_array($pk)) {
+                $pk = join('_', array_map(function($k, $v) { return $k.'-'.$v; }, array_keys($pk), $pk));
+            }       
+        }
+         
+        return str_replace('\\', '_', get_class($this->model)).'_'.$this->attribute.'_'.$pk;
     }
+   
 
     /**
     * check if attribute points to related model and resolve it

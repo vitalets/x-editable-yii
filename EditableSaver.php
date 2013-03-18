@@ -108,9 +108,9 @@ class EditableSaver extends CComponent
         $this->model = CActiveRecord::model($this->modelClass)->findByPk($this->primaryKey);
         if (!$this->model) {
             throw new CException(Yii::t('EditableSaver.editable', 'Model {class} not found by primary key "{pk}"', array(
-               '{class}'=>get_class($this->model), '{pk}'=>$this->primaryKey)));
+               '{class}'=>get_class($this->model), '{pk}' => is_array($this->primaryKey) ? CJSON::encode($this->primaryKey) : $this->primaryKey)));
         }
-
+              
         //set scenario
         $this->model->setScenario($this->scenario);
 
