@@ -82,7 +82,8 @@ class EditableField extends CWidget
 
     //list
     /**
-    * @var mixed source data for **select**, **checklist**. Can be url or php array.
+    * @var mixed source data for **select**, **checklist**. Can be string (url) or array in format: 
+    * array( array("value" => 1, "text" => "abc"), ...)
     * @package list
     * @see x-editable
     */
@@ -301,7 +302,7 @@ class EditableField extends CWidget
         //resolve model and attribute for related model
         $resolved = self::resolveModel($this->model, $this->attribute);
         if($resolved === false) {
-            //cannot resolve model (maybe no related models for this record)
+            //cannot resolve related model (maybe no related models for this record)
             $this->apply = false;
             $this->text = $originalText;
             return;
@@ -355,10 +356,10 @@ class EditableField extends CWidget
             'href'      => '#',
             'rel'       => $this->getSelector(),
         );
-        
+
         //set data-pk only for existing records
         if(!$this->model->isNewRecord) {
-           $htmlOptions['data-pk'] = is_array($this->model->primaryKey) ? CJSON::encode($this->model->primaryKey) : $this->model-primaryKey; 
+           $htmlOptions['data-pk'] = is_array($this->model->primaryKey) ? CJSON::encode($this->model->primaryKey) : $this->model->primaryKey; 
         }
 
         //if input type assumes autotext (e.g. select) we define value directly in data-value 
@@ -432,12 +433,12 @@ class EditableField extends CWidget
 
         if ($this->source) {
             //if source is array --> convert it to x-editable format.
-            //Note: source with count = 1 is Yii route
-            if(is_array($this->source) && count($this->source) > 1) {
+            //Since 1.1.0 source as array with one element is NOT treated as Yii route!
+            if(is_array($this->source)) {
                 //if first elem is array assume it's normal x-editable format, so just pass it
                 if(isset($this->source[0]) && is_array($this->source[0])) {
                     $options['source'] = $this->source;
-                } else { //else convert to x-editable source format
+                } else { //else convert to x-editable source format {value: 1, text: 'abc'}
                     $options['source'] = array();
                     foreach($this->source as $value => $text) {
                         $options['source'][] = array('value' => $value, 'text' => $text);
