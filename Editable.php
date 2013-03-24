@@ -9,7 +9,7 @@
 */
 
 /**
-* EditableField widget makes editable single attribute of model.
+* Editable widget makes editable text.
 *
 * @package widgets
 */
@@ -282,12 +282,6 @@ class Editable extends CWidget
         }
 
         $originalText = $this->text;
-
-        //if apply set to false --> just print text
-        if($this->apply === false) {
-            $this->text = $originalText;
-            return;
-        }
 
         //if apply = false --> just print text (see 'run' method)
         if ($this->apply === false) {
