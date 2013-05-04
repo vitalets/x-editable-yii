@@ -29,8 +29,8 @@ class EditableColumn extends CDataColumn
 
     public function init()
     {
-        if (!$this->grid->dataProvider instanceOf CActiveDataProvider) {
-            throw new CException('EditableColumn can be applied only to grid based on CActiveDataProvider');
+        if (!$this->grid->dataProvider instanceOf CActiveDataProvider && !$this->grid->dataProvider instanceOf CArrayDataProvider) {
+            throw new CException('EditableColumn can be applied only to a grid based on CActiveDataProvider or CArrayDataProvider');
         }
         if (!$this->name) {
             throw new CException('You should provide name for EditableColumn');
