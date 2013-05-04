@@ -73,6 +73,12 @@ class EditableField extends CWidget
     public $emptytext = null;
 
     /**
+    * @var string visibility of buttons. Can be boolean `false|true` or string `bottom`.
+    * @see x-editable
+    */
+    public $showbuttons = null;    
+    
+    /**
     * @var boolean will editable be initially disabled. It means editable plugin will be applied to element,
     * but you should call `.editable('enable')` method to activate it.
     * To totally disable applying 'editable' to element use **apply** option.
@@ -432,9 +438,9 @@ class EditableField extends CWidget
 
         //simple options set directly from config
         foreach(array('mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat', 'template',
-                      'combodate', 'select2', 'viewseparator'
+                      'combodate', 'select2', 'viewseparator', 'showbuttons'
                ) as $option) {
-            if ($this->$option) {
+            if ($this->$option !== null) {
                 $options[$option] = $this->$option;
             }
         }
