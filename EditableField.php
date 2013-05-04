@@ -334,7 +334,15 @@ class EditableField extends CWidget
         If set this flag to true --> element content will stay empty and value will be rendered to data-value attribute to apply autotext.
         */
         $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') 
-         && in_array($this->type, array('select', 'checklist', 'date', 'dateui', 'combodate', 'select2'));
+         && in_array($this->type, array(
+            'select', 
+            'checklist', 
+            'date', 
+            'datetime', 
+            'dateui', 
+            'combodate', 
+            'select2'
+         ));
 
         /*
          If text not defined, generate it from model attribute for types except lists ('select', 'checklist' etc)
@@ -556,18 +564,25 @@ class EditableField extends CWidget
         $cs->registerCssFile($assetsUrl.'/css/'.$css);
         $cs->registerScriptFile($assetsUrl.'/js/'.$js, CClientScript::POS_END);
 
-        //include moment.js if needed 
+        //include moment.js for combodate 
         if($this->type == 'combodate') {
             $momentUrl = $am->publish(Yii::getPathOfAlias('editable.assets.moment'));
             $cs->registerScriptFile($momentUrl.'/moment.min.js');          
         }
         
-        //include select2 if needed
+        //include select2 lib for select2 type
         if($this->type == 'select2') {
             $select2Url = $am->publish(Yii::getPathOfAlias('editable.assets.select2'));
             $cs->registerScriptFile($select2Url.'/select2.min.js');  
             $cs->registerCssFile($select2Url.'/select2.css');        
-        }        
+        }  
+        
+        //include bootstrap-datetimepicker
+        if($this->type == 'datetime') {
+            $url = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-datetimepicker'));
+            $cs->registerScriptFile($url.'/js/bootstrap-datetimepicker.js');  
+            $cs->registerCssFile($url.'/css/datetimepicker.css');        
+        }               
         
         //TODO: include locale for datepicker
         //may be do it manually?
