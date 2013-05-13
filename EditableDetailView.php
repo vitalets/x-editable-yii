@@ -6,34 +6,34 @@
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
  * @version 1.1.0
-*/
+ */
 
 Yii::import('editable.EditableField');
 Yii::import('zii.widgets.CDetailView');
 
 /**
-* EditableDetailView widget makes editable CDetailView (several attributes of single model shown as name-value table).
-*
-* @package widgets
-*/
+ * EditableDetailView widget makes editable CDetailView (several attributes of single model shown as name-value table).
+ *
+ * @package widgets
+ */
 class EditableDetailView extends CDetailView
 {
     /**
     * @var string submit url for all editables in detailview
     */
     /*
-     commented due to using magic methods and setting any of default EditableField param 
+     commented due to using magic methods and setting any of default EditableField param
      from top level config of EditableDetailView
-    */  
+    */
     //public $url = null;
 
     /**
     * @var array additional params to send on server
     */
     /*
-     commented due to using magic methods and setting any of default EditableField param 
+     commented due to using magic methods and setting any of default EditableField param
      from top level config of EditableDetailView
-    */     
+    */
     //public $params = null;
 
     public function init()
@@ -61,7 +61,7 @@ class EditableDetailView extends CDetailView
             //ensure $options['editable'] is array
             if(!isset($options['editable'])) $options['editable'] = array();
 
-            //merge options with defaults: url, params, etc. 
+            //merge options with defaults: url, params, etc.
             $options['editable'] = CMap::mergeArray($this->_data, $options['editable']);
 
             //options to be passed into EditableField (constructed from $options['editable'])
@@ -74,8 +74,8 @@ class EditableDetailView extends CDetailView
             if(isset($options['value']) && $options['value'] !== null) {
                 $widgetOptions['text'] = $templateData['{value}'];
                 $widgetOptions['encode'] = false;
-            }            
-            
+            }
+
             $widgetOptions = CMap::mergeArray($widgetOptions, $options['editable']);
 
             $widget = $this->controller->createWidget('EditableField', $widgetOptions);
@@ -141,4 +141,3 @@ class EditableDetailView extends CDetailView
         return array_key_exists($name,$this->_data)||parent::__isset($name);
     }
 }
-
