@@ -298,16 +298,7 @@ class Editable extends CWidget
         If set this flag to true --> element content will stay empty 
         and value will be rendered to data-value attribute to apply autotext after.
         */
-        $this->_prepareToAutotext = (!isset($this->options['autotext']) || $this->options['autotext'] !== 'never') 
-         && in_array($this->type, array(
-            'select', 
-            'checklist', 
-            'date', 
-            'datetime', 
-            'dateui', 
-            'combodate', 
-            'select2'
-         ));
+        $this->_prepareToAutotext = self::isAutotext($this->options, $this->type);
     }
 
     public function buildHtmlOptions()
@@ -356,14 +347,12 @@ class Editable extends CWidget
         $this->url = CHtml::normalizeUrl($this->url);
 
         $options = array(
-            'type'  => $this->type,
-            'url'   => $this->url,
             'name'  => $this->name,
             'title' => CHtml::encode($this->title),
         );
 
         //simple options set directly from config
-        foreach(array('mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat', 'template',
+        foreach(array('url', 'type', 'mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat', 'template',
                       'combodate', 'select2', 'viewseparator', 'showbuttons'
                ) as $option) {
             if ($this->$option !== null) {
@@ -571,6 +560,27 @@ class Editable extends CWidget
          
         return $this->name.'_'.$pk;
     }
+    
+    /**
+    * Returns is autotext should be applied to widget
+    * 
+    * @param mixed $options
+    * @param mixed $type
+    */
+    public static function isAutotext($options, $type) 
+    {
+         return (!isset($options['autotext']) || $options['autotext'] !== 'never') 
+         && in_array($type, array(
+            'select', 
+            'checklist', 
+            'date', 
+            'datetime', 
+            'dateui', 
+            'combodate', 
+            'select2'
+         ));
+    }
+    
 
     /**
     * method to register jQuery UI with build-in or custom theme
