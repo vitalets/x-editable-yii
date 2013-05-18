@@ -86,8 +86,15 @@ class EditableField extends Editable
             $this->type = 'text';
             if (array_key_exists($this->attribute, $this->model->tableSchema->columns)) {
                 $dbType = $this->model->tableSchema->columns[$this->attribute]->dbType;
-                if($dbType == 'date' || $dbType == 'datetime') $this->type = 'date';
-                if(stripos($dbType, 'text') !== false) $this->type = 'textarea';
+                if($dbType == 'date') {
+                    $this->type = 'date';
+                }
+                if($dbType == 'datetime') {
+                    $this->type = 'datetime';
+                }
+                if(stripos($dbType, 'text') !== false) {
+                    $this->type = 'textarea';
+                }
             }
         }
 
