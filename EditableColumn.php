@@ -88,6 +88,11 @@ class EditableColumn extends CDataColumn
             $options['text'] = $text;
             $options['encode'] = false;
         }
+        
+        //apply may be a string expression, see https://github.com/vitalets/x-editable-yii/issues/33
+        if (isset($options['apply']) && is_string($options['apply'])) {
+            $options['apply'] = $this->evaluateExpression($options['apply'], array('data'=>$data, 'row'=>$row));
+        }           
 
         $widget = $this->grid->controller->createWidget($widgetClass, $options);
 
