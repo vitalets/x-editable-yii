@@ -1,21 +1,21 @@
 <?php
 /**
  * EditableColumn class file.
- * 
+ *
  * @author Vitaliy Potapov <noginsk@rambler.ru>
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
  * @version 1.1.0
-*/
+ */
 
 Yii::import('editable.EditableField');
 Yii::import('zii.widgets.grid.CDataColumn');
 
 /**
-* EditableColumn widget makes editable one column in CGridView.
-* 
-* @package widgets
-*/
+ * EditableColumn widget makes editable one column in CGridView.
+ *
+ * @package widgets
+ */
 class EditableColumn extends CDataColumn
 {
     /**
@@ -40,7 +40,7 @@ class EditableColumn extends CDataColumn
         }
 
         parent::init();
-        
+
         //need to attach ajaxUpdate handler to refresh editables on pagination and sort
         //should be here, before render of grid js
         $this->attachAjaxUpdateEvent();
@@ -79,7 +79,7 @@ class EditableColumn extends CDataColumn
         }
         
         $options = CMap::mergeArray($this->editable, $options);
-        
+
         //if value defined for column --> use it as element text
         if($passText) {
             ob_start();
@@ -93,6 +93,7 @@ class EditableColumn extends CDataColumn
 
         //if editable not applied --> render original text
         if($widget->apply === false) {
+           
            if(isset($text)) {
                echo $text;
            } else {
@@ -100,7 +101,7 @@ class EditableColumn extends CDataColumn
            }
            return;
         }
-        
+
         //call these methods manually as we don't call run()
         $widget->buildHtmlOptions();
         $widget->buildJsOptions();
@@ -123,21 +124,21 @@ class EditableColumn extends CDataColumn
             $this->_isScriptRendered = true;
         }
     }
-    
+
    /**
-   * Yii yet does not support custom js events in widgets. 
-   * So we need to invoke it manually to ensure update of editables on grid ajax update.
-   * 
-   * issue in Yii github: https://github.com/yiisoft/yii/issues/1313
-   * 
-   */
+    * Yii yet does not support custom js events in widgets.
+    * So we need to invoke it manually to ensure update of editables on grid ajax update.
+    *
+    * issue in Yii github: https://github.com/yiisoft/yii/issues/1313
+    *
+    */
     protected function attachAjaxUpdateEvent()
     {
         $trigger = '$("#"+id).trigger("ajaxUpdate.yiiGridView");';
-        
+
         //check if trigger already inserted by another column
         if(strpos($this->grid->afterAjaxUpdate, $trigger) !== false) return;
-        
+
         //inserting trigger
         if(strlen($this->grid->afterAjaxUpdate)) {
             $orig = $this->grid->afterAjaxUpdate;

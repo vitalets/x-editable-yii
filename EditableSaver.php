@@ -6,13 +6,16 @@
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
  * @version 1.1.0
-*/
+ */
 
 /**
-* EditableSaver helps to update model by editable widget submit request.
-*
-* @package saver
-*/
+ * EditableSaver helps to update model by editable widget submit request.
+ *
+ * @property mixed onBeforeUpdate
+ * @property mixed onAfterUpdate
+ *
+ * @package saver
+ */
 class EditableSaver extends CComponent
 {
     /**
@@ -28,18 +31,21 @@ class EditableSaver extends CComponent
      * @var mixed
      */
     public $modelClass;
+
     /**
      * primaryKey value
      *
      * @var mixed
      */
     public $primaryKey;
+
     /**
      * name of attribute to be updated
      *
      * @var mixed
      */
     public $attribute;
+
     /**
      * model instance
      *
@@ -54,14 +60,14 @@ class EditableSaver extends CComponent
 
     /**
      * http status code returned in case of error
-    */
+     */
     public $errorHttpCode = 400;
 
     /**
-    * name of changed attributes. Used when saving model
-    *
-    * @var mixed
-    */
+     * name of changed attributes. Used when saving model
+     *
+     * @var mixed
+     */
     protected $changedAttributes = array();
 
     /**
@@ -75,11 +81,11 @@ class EditableSaver extends CComponent
         if (empty($modelClass)) {
             throw new CException(Yii::t('EditableSaver.editable', 'You should provide modelClass in constructor of EditableSaver.'));
         }
-        
+
         $this->modelClass = $modelClass;
-        
+
         //for non-namespaced models do ucfirst (for backwards compability)
-        //see https://github.com/vitalets/x-editable-yii/issues/9  
+        //see https://github.com/vitalets/x-editable-yii/issues/9
         if(strpos($this->modelClass, '\\') === false) {
             $this->modelClass = ucfirst($this->modelClass);
         }
@@ -110,7 +116,7 @@ class EditableSaver extends CComponent
             throw new CException(Yii::t('EditableSaver.editable', 'Model {class} not found by primary key "{pk}"', array(
                '{class}'=>get_class($this->model), '{pk}' => is_array($this->primaryKey) ? CJSON::encode($this->primaryKey) : $this->primaryKey)));
         }
-              
+
         //set scenario
         $this->model->setScenario($this->scenario);
 
@@ -123,7 +129,7 @@ class EditableSaver extends CComponent
               '{class}'=>get_class($this->model), '{attr}'=>$this->attribute)));
         }
         */
-        
+
         //is attribute safe
         if (!$this->model->isAttributeSafe($this->attribute)) {
             throw new CException(Yii::t('editable', 'Model {class} rules do not allow to update attribute "{attr}"', array(

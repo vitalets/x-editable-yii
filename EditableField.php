@@ -6,15 +6,15 @@
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
  * @version 1.1.0
-*/
+ */
 
 Yii::import('editable.Editable');
 
 /**
-* EditableField widget makes editable single attribute of model.
-*
-* @package widgets
-*/
+ * EditableField widget makes editable single attribute of model.
+ *
+ * @package widgets
+ */
 class EditableField extends Editable
 {
     /**
@@ -127,7 +127,7 @@ class EditableField extends Editable
     {
         return str_replace('\\', '_', get_class($this->model)).'_'.parent::getSelector();
     }
-   
+
 
     /**
     * check if attribute points to related model and resolve it
