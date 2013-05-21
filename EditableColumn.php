@@ -54,8 +54,9 @@ class EditableColumn extends CDataColumn
             $widgetClass = 'EditableField';
             $options = array(
                 'model'     => $data,
-                'attribute' => $this->name,
-            );   
+                'attribute' => empty($this->editable['attribute']) ? $this->name : $this->editable['attribute'],
+            );
+               
             //manually make selector non unique to match all cells in column
             $selector = $this->grid->id.'_'.str_replace('\\', '_', get_class($data)).'_'.$this->name;   
             
@@ -65,7 +66,7 @@ class EditableColumn extends CDataColumn
             $widgetClass = 'Editable';
             $options = array(
                 'pk'     => $data[$this->grid->dataProvider->keyField],
-                'name'   => $this->name
+                'name'   => empty($this->editable['name']) ? $this->name : $this->editable['name'],
             );
             //manually make selector non unique to match all cells in column
             $selector = $this->grid->id.'_'.$this->name; 

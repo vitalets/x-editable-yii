@@ -518,11 +518,11 @@ class Editable extends CWidget
 
     public function run()
     {
-        $this->buildHtmlOptions();
-        $this->buildJsOptions();
-        $this->registerAssets();        
-        
         if($this->apply !== false) {
+            $this->buildHtmlOptions();
+            $this->buildJsOptions();
+            $this->registerAssets();               
+            
             $this->registerClientScript();
             $this->renderLink();
         } else {

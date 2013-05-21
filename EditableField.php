@@ -40,16 +40,6 @@ class EditableField extends Editable
             throw new CException('Parameter "attribute" should be provided for EditableField');
         }
 
-        //name
-        $this->name = $this->attribute;
-        
-        //pk
-        if(!$this->model->isNewRecord) {
-            $this->pk = $this->model->primaryKey;
-        }
-
-        parent::init();
-        
         $originalText = strlen($this->text) ? $this->text : CHtml::value($this->model, $this->attribute);
 
         //if apply set manually to false --> just render text, no js plugin applied
@@ -60,7 +50,7 @@ class EditableField extends Editable
             $this->apply = true;
         }
 
-        //resolve model and attribute for related model
+        //resolve model and attribute for related model (when attribute contains dot)
         $resolved = self::resolveModel($this->model, $this->attribute);
         if($resolved === false) {
             //cannot resolve related model (maybe no related models for this record)
@@ -98,6 +88,18 @@ class EditableField extends Editable
             }
         }
 
+        //name
+        if(empty($this->name)) {
+            $this->name = $this->attribute;
+        }
+        
+        //pk
+        if(!$this->model->isNewRecord) {
+            $this->pk = $this->model->primaryKey;
+        }        
+        
+        parent::init();        
+        
         /*
          If text not defined, generate it from model attribute for types except lists ('select', 'checklist' etc)
          For lists keep it empty to apply autotext.
