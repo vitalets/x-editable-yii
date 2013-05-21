@@ -329,10 +329,11 @@ class Editable extends CWidget
                     $format = str_replace('MM', 'MMMM', $this->format, $count);
                     if(!$count) $format = str_replace('M', 'MMM', $format, $count);
                     if(!$count) $format = str_replace('m', 'M', $format);
-
-                    $timestamp = $this->value;
+                    
                     if($this->value instanceof DateTime) {
                         $timestamp = $this->value->getTimestamp();
+                    } else {
+                        $timestamp = $this->value;
                     }
 
                     $this->value = Yii::app()->dateFormatter->format($format, $timestamp);

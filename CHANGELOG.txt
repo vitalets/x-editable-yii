@@ -3,6 +3,7 @@ X-editable-yii changelog
 
 Version 1.1.1  wip
 ----------------------------
+[enh #35] support of dates as timestamp (andersonamuller)
 [enh] support of virtual_fields in EditableColumn (vitalets)
 
 
