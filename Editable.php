@@ -320,7 +320,7 @@ class Editable extends CWidget
             //for date we use 'format' to put it into value (if text not defined)
             if ($this->type == 'date') {
                 //if date comes as object, format it to string
-                if($this->value instanceOf DateTime) {
+                if($this->value instanceOf DateTime || is_long($this->value)) {
                     /*
                     * unfortunatly datepicker's format does not match Yii locale dateFormat,
                     * we need replacements below to convert date correctly
@@ -330,7 +330,12 @@ class Editable extends CWidget
                     if(!$count) $format = str_replace('M', 'MMM', $format, $count);
                     if(!$count) $format = str_replace('m', 'M', $format);
 
-                    $this->value = Yii::app()->dateFormatter->format($format, $this->value->getTimestamp());
+                    $timestamp = $this->value;
+                    if($this->value instanceof DateTime) {
+                        $timestamp = $this->value->getTimestamp();
+                    }
+
+                    $this->value = Yii::app()->dateFormatter->format($format, $timestamp);
                 }
             } 
 
