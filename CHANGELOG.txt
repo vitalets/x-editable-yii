@@ -1,6 +1,10 @@
 X-editable-yii changelog
 ============================
 
+Version 1.1.1  wip
+----------------------------
+[enh] support of virtual_fields in EditableColumn (vitalets)
+
 
 Version 1.1.0  May 18, 2013
 ----------------------------
