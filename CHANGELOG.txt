@@ -3,6 +3,7 @@ X-editable-yii changelog
 
 Version 1.1.1  wip
 ----------------------------
+[enh #37] added Editable::source method (vitalets)
 [enh #38] CSRF support out of box (horizons2)
 [enh #35] support of dates as timestamp (andersonamuller)
 [enh] support of virtual_fields in EditableColumn (vitalets)

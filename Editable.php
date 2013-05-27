@@ -596,6 +596,78 @@ class Editable extends CWidget
          ));
     }
     
+    /**
+    * Returns php-array as valid x-editable source in format: 
+    * [{value: 1, text: 'text1'}, {...}]
+    * 
+    * if first parameter is 1-dimensional array, you can set $valueField = 'index' 
+    * to use index as value.
+    * See https://github.com/vitalets/x-editable-yii/issues/37
+    * 
+    * @param mixed $models
+    * @param mixed $valueField
+    * @param mixed $textField
+    * @param mixed $groupField
+    * @param mixed $groupTextField
+    */
+    public static function source($models, $valueField='', $textField='', $groupField='', $groupTextField='')
+    {
+        $listData=array();
+        
+        $first = reset($models);
+        
+        //simple 1-dimensional array: 0 => 'text 0', 1 => 'text 1'
+        if($first && (is_string($first) || is_numeric($first))) {
+            foreach($models as $index => $text) {
+                if($valueField == 'index') { 
+                    $listData[] = array('value' => $index, 'text' => $text);
+                } else {
+                    $listData[] = $text;                    
+                }
+            }
+            return $listData;
+        } 
+        
+        // 2-dimensional array or dataset
+        if($groupField === '') {
+            foreach($models as $model) {
+                $value = CHtml::value($model, $valueField);
+                $text = CHtml::value($model, $textField);
+                $listData[] = array('value' => $value, 'text' => $text);
+            }
+        } else {
+            if(!$groupTextField) {
+                $groupTextField = $groupField;
+            }
+            $groups = array();
+            foreach($models as $model) {
+                $group=CHtml::value($model,$groupField);
+                $groupText=CHtml::value($model,$groupTextField);
+                $value=CHtml::value($model,$valueField);
+                $text=CHtml::value($model,$textField);
+                if($group === null) {
+                    $listData[] = array('value' => $value, 'text' => $text);
+                } else {
+                    if(!isset($groups[$group])) {
+                        $groups[$group] = array('value' => $group, 'text' => $groupText, 'children' => array(), 'index' => count($listData));
+                        $listData[] = 'group'; //placeholder, will be replaced in future
+                    }
+                    $groups[$group]['children'][] = array('value' => $value, 'text' => $text);
+                }
+            }
+ 
+            //fill placeholders with group data           
+            foreach($groups as $group) {
+                $index = $group['index'];
+                unset($group['index']);
+                $listData[$index] = $group;                      
+            }
+        }
+        
+        return $listData;
+    }
+    
+    
 
     /**
     * method to register jQuery UI with build-in or custom theme
