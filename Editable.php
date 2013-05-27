@@ -356,6 +356,15 @@ class Editable extends CWidget
             'name'  => $this->name,
             'title' => CHtml::encode($this->title),
         );
+        
+        //support of CSRF out of box, see https://github.com/vitalets/x-editable-yii/issues/38
+        if (Yii::app()->request->enableCsrfValidation) {
+            $csrfTokenName = Yii::app()->request->csrfTokenName;
+            $csrfToken = Yii::app()->request->csrfToken;
+            if(!isset($this->params[$csrfTokenName])) {
+                $this->params[$csrfTokenName] = $csrfToken;
+            }
+        }        
 
         //simple options set directly from config
         foreach(array('url', 'type', 'mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat', 'template',
