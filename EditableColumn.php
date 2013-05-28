@@ -95,7 +95,7 @@ class EditableColumn extends CDataColumn
         if (isset($options['apply']) && is_string($options['apply'])) {
             $options['apply'] = $this->evaluateExpression($options['apply'], array('data'=>$data, 'row'=>$row));
         }           
-
+         
         $widget = $this->grid->controller->createWidget($widgetClass, $options);
 
         //if editable not applied --> render original text
@@ -123,7 +123,16 @@ class EditableColumn extends CDataColumn
         
         //manually render client script (once for all cells in column)
         if (!$this->_isScriptRendered) {
-            $script = $widget->registerClientScript();
+            //create 'dummy' widget to render correct clientScript (for case when all cells have apply=false)
+            $dummyOptions = $options;
+            unset($dummyOptions['apply']);
+            $dummyWidget = $this->grid->controller->createWidget($widgetClass, $dummyOptions);
+            $dummyWidget->buildHtmlOptions();
+            $dummyWidget->buildJsOptions();
+            $dummyWidget->registerAssets();
+            $dummyWidget->htmlOptions['rel'] = $selector;
+               
+            $script = $dummyWidget->registerClientScript();
             //use parent() as grid is totally replaced by new content
             Yii::app()->getClientScript()->registerScript(__CLASS__ . '#' . $selector.'-event', '
                 $("#'.$this->grid->id.'").parent().on("ajaxUpdate.yiiGridView", "#'.$this->grid->id.'", function() {'.$script.'});
