@@ -99,13 +99,11 @@ class EditableColumn extends CDataColumn
 
         //if editable not applied --> render original text
         if($widget->apply === false) {
-           
            if(isset($text)) {
                echo $text;
            } else {
                parent::renderDataCellContent($row, $data);
            }
-           return;
         }
 
         //call these methods manually as we don't call run()
@@ -118,9 +116,11 @@ class EditableColumn extends CDataColumn
         $widget->htmlOptions['rel'] = $selector;
 
         //can't call run() as it registers clientScript
-        $widget->renderLink();
-
-        //manually render client script (one for all cells in column)
+        if($widget->apply !== false) {
+            $widget->renderLink();
+        }
+        
+        //manually render client script (once for all cells in column)
         if (!$this->_isScriptRendered) {
             $script = $widget->registerClientScript();
             //use parent() as grid is totally replaced by new content
@@ -128,7 +128,7 @@ class EditableColumn extends CDataColumn
                 $("#'.$this->grid->id.'").parent().on("ajaxUpdate.yiiGridView", "#'.$this->grid->id.'", function() {'.$script.'});
             ');
             $this->_isScriptRendered = true;
-        }
+        }          
     }
 
    /**

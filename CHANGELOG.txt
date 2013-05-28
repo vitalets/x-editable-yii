@@ -3,6 +3,7 @@ X-editable-yii changelog
 
 Version 1.2.0  wip
 ----------------------------
+[bug #41] if all columns have `apply=false` grid becomes un-editable after update (horizons2)
 [enh #39] support php < 5.3 (vitalets)
 [enh #37] added Editable::source method (vitalets)
 [enh #38] CSRF support out of box (horizons2)
