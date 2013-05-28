@@ -388,7 +388,7 @@ class Editable extends CWidget
                         $options['source'][] = array('value' => $value, 'text' => $text);
                     }
                 }
-            } else { //source is url
+            } else { //source is url string (or js function)
                 $options['source'] = CHtml::normalizeUrl($this->source);
             }
         }
