@@ -600,8 +600,6 @@ class Editable extends CWidget
     * Returns php-array as valid x-editable source in format: 
     * [{value: 1, text: 'text1'}, {...}]
     * 
-    * if first parameter is 1-dimensional array, you can set $valueField = 'index' 
-    * to use index as value.
     * See https://github.com/vitalets/x-editable-yii/issues/37
     * 
     * @param mixed $models
@@ -618,12 +616,8 @@ class Editable extends CWidget
         
         //simple 1-dimensional array: 0 => 'text 0', 1 => 'text 1'
         if($first && (is_string($first) || is_numeric($first))) {
-            foreach($models as $index => $text) {
-                if($valueField == 'index') { 
-                    $listData[] = array('value' => $index, 'text' => $text);
-                } else {
-                    $listData[] = $text;                    
-                }
+            foreach($models as $key => $text) {
+                $listData[] = array('value' => $key, 'text' => $text);
             }
             return $listData;
         } 
