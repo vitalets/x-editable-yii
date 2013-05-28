@@ -45,7 +45,8 @@ class EditableColumn extends CDataColumn
         //should be here, before render of grid js
         $this->attachAjaxUpdateEvent();
     }
-
+   
+    
     protected function renderDataCellContent($row, $data)
     {
         $isModel = $data instanceOf CModel;
@@ -157,4 +158,53 @@ class EditableColumn extends CDataColumn
             $trigger $orig
         }";
     }
+    
+    /*
+    Require this overwrite to show bootstrap sort icons
+    */
+    protected function renderHeaderCellContent()
+    {
+        if(yii::app()->editable->form != EditableConfig::FORM_BOOTSTRAP) {
+            parent::renderHeaderCellContent();
+            return;
+        }
+        
+        if ($this->grid->enableSorting && $this->sortable && $this->name !== null)
+        {
+            $sort = $this->grid->dataProvider->getSort();
+            $label = isset($this->header) ? $this->header : $sort->resolveLabel($this->name);
+
+            if ($sort->resolveAttribute($this->name) !== false)
+                $label .= '<span class="caret"></span>';
+
+            echo $sort->link($this->name, $label, array('class'=>'sort-link'));
+        }
+        else
+        {
+            if ($this->name !== null && $this->header === null)
+            {
+                if ($this->grid->dataProvider instanceof CActiveDataProvider)
+                    echo CHtml::encode($this->grid->dataProvider->model->getAttributeLabel($this->name));
+                else
+                    echo CHtml::encode($this->name);
+            }
+            else
+                parent::renderHeaderCellContent();
+        }
+    } 
+    
+    /*
+    Require this overwrite to show bootstrap filter field
+    */    
+    public function renderFilterCell()
+    {
+        if(yii::app()->editable->form != EditableConfig::FORM_BOOTSTRAP) {
+            parent::renderFilterCell();
+            return;
+        }
+                
+        echo '<td><div class="filter-container">';
+        $this->renderFilterCellContent();
+        echo '</div></td>';
+    }       
 }
