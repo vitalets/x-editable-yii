@@ -567,9 +567,15 @@ class Editable extends CWidget
         if($pk === null) {
             $pk = 'new';
         } else {
-            //support of composite keys: convert to string
+            //support of composite keys: convert to string: e.g. 'id-1_lang-ru'
             if(is_array($pk)) {
-                $pk = join('_', array_map(function($k, $v) { return $k.'-'.$v; }, array_keys($pk), $pk));
+                //below not works in PHP < 5.3, see https://github.com/vitalets/x-editable-yii/issues/39
+                //$pk = join('_', array_map(function($k, $v) { return $k.'-'.$v; }, array_keys($pk), $pk));
+                $buffer = array();
+                foreach($pk as $k => $v) {
+                    $buffer[] = $k.'-'.$v;
+                }
+                $pk = join('_', $buffer);
             }       
         }
          
