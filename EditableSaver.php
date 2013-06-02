@@ -148,7 +148,19 @@ class EditableSaver extends CComponent
         $this->checkErrors();
 
         //saving (no validation, only changed attributes)
-        if ($this->model->save(false, $this->changedAttributes)) {
+        $attibuteNames = $this->model->attributeNames();
+        if( array_search($this->changedAttributes, $attibuteNames) == false )
+        {
+            //save any field couse another way it gives error 
+            //in line 290 throw new CDbException(Yii::t('yii','No columns are being updated for table "{table}".', 
+            //in class CDbCommandBuilder
+            $atrName = $attibuteNames[0];
+        }
+        else 
+        {
+        	$atrName = $this->changedAttributes;
+        }
+        if ($this->model->save(false, $atrName)) {
             //trigger afterUpdate event
             $this->afterUpdate();
         } else {
