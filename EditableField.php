@@ -111,7 +111,10 @@ class EditableField extends Editable
         
         //set value directly for autotext generation
         if($this->_prepareToAutotext) {
-            $this->value = $this->model->getAttribute($this->attribute); 
+            $this->value = $this->model->{($this->attribute)};
+            if(is_array($this->value) ){
+                $this->value = implode(',', $this->value);
+            }
         }
         
         //generate title from attribute label
