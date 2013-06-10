@@ -27,6 +27,13 @@ class EditableField extends Editable
     public $attribute = null;
    
     /**
+    * @var instance of model that is created always:
+    * E.g. if related model does not exist, it will be `newed` to be able tp get Attribute label, etc
+    * for live update. 
+    */
+    private $staticModel = null;
+    
+    /**
     * initialization of widget
     *
     */
@@ -45,28 +52,49 @@ class EditableField extends Editable
         //if apply set manually to false --> just render text, no js plugin applied
         if($this->apply === false) {
             $this->text = $originalText;
-            return;
         } else {
             $this->apply = true;
         }
 
-        //resolve model and attribute for related model (when attribute contains dot)
-        $resolved = self::resolveModel($this->model, $this->attribute);
-        if($resolved === false) {
-            //cannot resolve related model (maybe no related models for this record)
-            $this->apply = false;
-            $this->text = $originalText;
-            return;
+        //attribute contains dot: related model, trying to resolve
+        $explode = explode('.', $this->attribute);
+        $len = count($explode);
+        if($len > 1) {
+            $this->attribute = $explode[$len-1];
+            //try to resolve model instance  
+            $model = $this->model;
+            $resolved = true;
+            for($i = 0; $i < $len-1; $i++) {
+                $name = $explode[$i];
+                if($model->$name instanceof CActiveRecord) {
+                    $model = $model->$name;
+                } else {
+                    //related model not exist! Render text only.
+                    $this->apply = false;
+                    $resolved = false;
+                    $this->text = $originalText;
+                    break;
+                }
+            }
+            
+            if($resolved) {
+                $this->staticModel = $model;
+                $this->model = $model;
+            } else {
+                $relationName = $explode[$len-2];
+                $className = $this->model->getActiveRelation($relationName)->className;
+                $this->staticModel = new $className();
+                $this->model = null;                
+            }
         } else {
-            list($this->model, $this->attribute) = $resolved;
+            $this->staticModel = $this->model;  
         }
 
         //for security reason only safe attributes can be editable (e.g. defined in rules of model)
         //just print text (see 'run' method)
-        if (!$this->model->isAttributeSafe($this->attribute)) {
+        if (!$this->staticModel->isAttributeSafe($this->attribute)) {
             $this->apply = false;
             $this->text = $originalText;
-            return;
         }
 
         /*
@@ -74,8 +102,8 @@ class EditableField extends Editable
         */
         if ($this->type === null) {
             $this->type = 'text';
-            if (array_key_exists($this->attribute, $this->model->tableSchema->columns)) {
-                $dbType = $this->model->tableSchema->columns[$this->attribute]->dbType;
+            if (array_key_exists($this->attribute, $this->staticModel->tableSchema->columns)) {
+                $dbType = $this->staticModel->tableSchema->columns[$this->attribute]->dbType;
                 if($dbType == 'date') {
                     $this->type = 'date';
                 }
@@ -94,7 +122,7 @@ class EditableField extends Editable
         }
         
         //pk
-        if(!$this->model->isNewRecord) {
+        if($this->model && !$this->model->isNewRecord) {
             $this->pk = $this->model->primaryKey;
         }        
         
@@ -110,7 +138,7 @@ class EditableField extends Editable
         }
         
         //set value directly for autotext generation
-        if($this->_prepareToAutotext) {
+        if($this->model && $this->_prepareToAutotext) {
             $this->value = $this->model->getAttribute($this->attribute); 
         }
         
@@ -126,40 +154,14 @@ class EditableField extends Editable
                    $title = Yii::t('EditableField.editable', $t);
                 }
             }
-            $this->title = $title . ' ' . $this->model->getAttributeLabel($this->attribute);
+            $this->title = $title . ' ' . $this->staticModel->getAttributeLabel($this->attribute);
         } else {
-            $this->title = strtr($this->title, array('{label}' => $this->model->getAttributeLabel($this->attribute)));
+            $this->title = strtr($this->title, array('{label}' => $this->staticModel->getAttributeLabel($this->attribute)));
         }        
     }
 
     public function getSelector()
     {
-        return str_replace('\\', '_', get_class($this->model)).'_'.parent::getSelector();
-    }
-
-
-    /**
-    * check if attribute points to related model and resolve it
-    *
-    * @param mixed $model
-    * @param mixed $attribute
-    */
-    public static function resolveModel($model, $attribute)
-    {
-        $explode = explode('.', $attribute);
-        if(count($explode) > 1) {
-            for($i = 0; $i < count($explode)-1; $i++) {
-                $name = $explode[$i];
-                if($model->$name instanceof CActiveRecord) {
-                    $model = $model->$name;
-                } else {
-                    //related model not exist! Better to return false and render as usual not editable field.
-                    //throw new CException('Property "'.$name.'" is not instance of CActiveRecord!');
-                    return false;
-                }
-            }
-            $attribute = $explode[$i];
-        }
-        return array($model, $attribute);
+        return str_replace('\\', '_', get_class($this->staticModel)).'_'.parent::getSelector();
     }
 }

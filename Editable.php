@@ -181,7 +181,22 @@ class Editable extends CWidget
     * @see x-editable
     */
     public $display = null;
-
+    
+    /**
+    * DOM id of target where afterAjaxUpdate handler will call 
+    * live update of editable element
+    * 
+    * @var string
+    */
+    public $liveTarget = null;
+    /**
+    * jQuery selector of elements to wich will be applied editable.
+    * Usefull in combination of `liveTarget` when you want to have several fields editble
+    * after ajaxUpdate (e.g. update of listView)
+    * 
+    * @var string
+    */
+    public $liveSelector = null;
 
     // --- X-editable events ---
     /**
@@ -306,7 +321,7 @@ class Editable extends CWidget
         //html options
         $htmlOptions = array(
             'href'      => '#',
-            'rel'       => $this->getSelector(),
+            'rel'       => $this->liveSelector ? $this->liveSelector : $this->getSelector(),
         );
 
         //set data-pk 
@@ -424,7 +439,11 @@ class Editable extends CWidget
 
     public function registerClientScript()
     {
-        $script = "$('a[rel=\"{$this->htmlOptions['rel']}\"]')";
+        $selector = "a[rel=\"{$this->htmlOptions['rel']}\"]"; 
+        if($this->liveTarget) {
+            $selector = '#'.$this->liveTarget.' '.$selector;
+        }
+        $script = "$('".$selector."')";
 
         //attach events
         foreach(array('init', 'shown', 'save', 'hidden') as $event) {
@@ -441,7 +460,13 @@ class Editable extends CWidget
         $options = CJavaScript::encode($this->options);
         $script .= ".editable($options);";
 
-        Yii::app()->getClientScript()->registerScript(__CLASS__ . '#' . $this->id, $script);
+        //wrap in anonymous function for live update
+        if($this->liveTarget) {
+            $script .= "\n $('body').on('ajaxUpdate.editable', function(e){ if(e.target.id == '".$this->liveTarget."') yiiEditable(); });";
+            $script = "(function yiiEditable() {\n ".$script."\n}());";
+        }
+        
+        Yii::app()->getClientScript()->registerScript(__CLASS__ . '-' . $selector, $script);
 
         return $script;
     }
@@ -533,12 +558,15 @@ class Editable extends CWidget
 
     public function run()
     {
-        if($this->apply !== false) {
+        //Register script (even if apply = false to support live update)
+        if($this->apply !== false || $this->liveTarget) {
             $this->buildHtmlOptions();
             $this->buildJsOptions();
             $this->registerAssets();               
-            
             $this->registerClientScript();
+        }
+        
+        if($this->apply !== false) {
             $this->renderLink();
         } else {
             $this->renderText();
@@ -563,6 +591,11 @@ class Editable extends CWidget
 
     public function getSelector()
     {
+        //for live updates selectorshould not contain pk
+        if($this->liveTarget) {
+            return $this->name;
+        }
+        
         $pk = $this->pk;
         if($pk === null) {
             $pk = 'new';
@@ -578,7 +611,8 @@ class Editable extends CWidget
                 $pk = join('_', $buffer);
             }       
         }
-         
+        
+        
         return $this->name.'_'.$pk;
     }
     
@@ -666,7 +700,33 @@ class Editable extends CWidget
         
         return $listData;
     }
-    
+
+    /**
+    * injects ajaxUpdate event into widget
+    *
+    * @param mixed $widget
+    */
+    public static function attachAjaxUpdateEvent($widget)
+    {
+        $trigger = '$("#'.$widget->id.'").trigger("ajaxUpdate.editable");';
+
+        //check if trigger already inserted by another column
+        if(strpos($widget->afterAjaxUpdate, $trigger) !== false) return;
+
+        //inserting trigger
+        if(strlen($widget->afterAjaxUpdate)) {
+            $orig = $widget->afterAjaxUpdate;
+            if(strpos($orig, 'js:')===0) $orig = substr($orig,3);
+            $orig = "\n($orig).apply(this, arguments);";
+        } else {
+            $orig = '';
+        }
+        $widget->afterAjaxUpdate = "js: function(id, data) {
+            $trigger $orig
+        }";
+
+        $widget->registerClientScript();
+    }    
     
 
     /**
