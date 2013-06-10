@@ -191,8 +191,8 @@ class Editable extends CWidget
     public $liveTarget = null;
     /**
     * jQuery selector of elements to wich will be applied editable.
-    * Usefull in combination of `liveTarget` when you want to have several fields editble
-    * after ajaxUpdate (e.g. update of listView)
+    * Usefull in combination of `liveTarget` when you want to keep field(s) editble
+    * after ajaxUpdate
     * 
     * @var string
     */
