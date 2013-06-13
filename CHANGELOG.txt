@@ -3,7 +3,7 @@ X-editable-yii changelog
 
 Version 1.3.0  wip
 ----------------------------
-[enh #46] add `liveTarget` option to support live update (vitalets)
+[enh #46] add `liveTarget` option to support live update in CListView (vitalets)
 
 
 Version 1.2.0  May 29, 2013
