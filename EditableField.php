@@ -157,6 +157,11 @@ class EditableField extends Editable
             $this->title = $title . ' ' . $this->staticModel->getAttributeLabel($this->attribute);
         } else {
             $this->title = strtr($this->title, array('{label}' => $this->staticModel->getAttributeLabel($this->attribute)));
+        }
+        
+        //scenario
+        if($this->model && !isset($this->params['scenario'])) {
+            $this->params['scenario'] = $this->model->getScenario(); 
         }        
     }
 

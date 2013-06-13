@@ -19,11 +19,11 @@
 class EditableSaver extends CComponent
 {
     /**
-     * scenarion used in model for update
+     * scenario used in model for update. Can be taken from `scenario` POST param
      *
      * @var mixed
      */
-    public $scenario = 'editable';
+    public $scenario;
 
     /**
      * name of model
@@ -101,6 +101,7 @@ class EditableSaver extends CComponent
         $this->primaryKey = yii::app()->request->getParam('pk');
         $this->attribute = yii::app()->request->getParam('name');
         $this->value = yii::app()->request->getParam('value');
+        $this->scenario = yii::app()->request->getParam('scenario', 'editable');
 
         //checking params
         if (empty($this->attribute)) {
