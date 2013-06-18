@@ -111,25 +111,37 @@ class EditableSaver extends CComponent
             throw new CException(Yii::t('EditableSaver.editable','Property "primaryKey" should be defined.'));
         }
 
+        $this->model = new $this->modelClass();
+        
+        $isMongo = EditableField::isMongo($this->model);
+        
         //loading model
-        $this->model = CActiveRecord::model($this->modelClass)->findByPk($this->primaryKey);
+        if($isMongo) {
+        	$this->model = $this->model->findByPk(new MongoID($this->primaryKey));
+		} else {
+			$this->model = $this->model->findByPk($this->primaryKey);
+		}
+        
         if (!$this->model) {
             throw new CException(Yii::t('EditableSaver.editable', 'Model {class} not found by primary key "{pk}"', array(
                '{class}'=>get_class($this->model), '{pk}' => is_array($this->primaryKey) ? CJSON::encode($this->primaryKey) : $this->primaryKey)));
         }
+        
+        //keep parent model for mongo
+        $originalModel = $this->model;
+        
+        //for mongo we should resolve model to check attribute safety
+        if($isMongo) {
+			$resolved = EditableField::resolveModels($this->model, $this->attribute);
+			$this->model = $resolved['model']; //can be related model now
+			$this->attribute = $resolved['attribute'];
+			$staticModel = $resolved['staticModel'];	        	
+		} else {
+			$staticModel = $this->model;
+		}
 
-        //set scenario
-        $this->model->setScenario($this->scenario);
-
-        //commented to be able to work with virtual attributes
-        //see https://github.com/vitalets/yii-bootstrap-editable/issues/15
-        /*
-        //is attribute exists
-        if (!$this->model->hasAttribute($this->attribute)) {
-            throw new CException(Yii::t('EditableSaver.editable', 'Model {class} does not have attribute "{attr}"', array(
-              '{class}'=>get_class($this->model), '{attr}'=>$this->attribute)));
-        }
-        */
+        //set scenario for main model
+        $originalModel->setScenario($this->scenario);
 
         //is attribute safe
         if (!$this->model->isAttributeSafe($this->attribute)) {
@@ -148,8 +160,8 @@ class EditableSaver extends CComponent
         $this->beforeUpdate();
         $this->checkErrors();
 
-        //saving (no validation, only changed attributes)
-        if ($this->model->save(false, $this->changedAttributes)) {
+        //saving (no validation, only changed attributes) note: for mongo save all!
+        if ($originalModel->save(false, $isMongo ? null : $this->changedAttributes)) {
             //trigger afterUpdate event
             $this->afterUpdate();
         } else {
