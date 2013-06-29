@@ -311,7 +311,7 @@ class Editable extends CWidget
                 
         /*
         If set this flag to true --> element content will stay empty 
-        and value will be rendered to data-value attribute to apply autotext after.
+        and value will be rendered to data-value attribute to apply autotext afterwards.
         */
         $this->_prepareToAutotext = self::isAutotext($this->options, $this->type);
     }
@@ -355,7 +355,10 @@ class Editable extends CWidget
                 }
             } 
 
-            $this->htmlOptions['data-value'] = $this->value;
+            if(is_scalar($this->value)) {
+                $this->htmlOptions['data-value'] = $this->value;
+            }
+            //if not scalar, value will be added to js options instead of html options
         }
 
         //merging options
@@ -371,6 +374,11 @@ class Editable extends CWidget
             'name'  => $this->name,
             'title' => CHtml::encode($this->title),
         );
+        
+        //if value needed for autotext and it's not scalar --> add it to js options
+        if ($this->_prepareToAutotext && !is_scalar($this->value)) {
+            $options['value'] = $this->value; 
+        }
         
         //support of CSRF out of box, see https://github.com/vitalets/x-editable-yii/issues/38
         if (Yii::app()->request->enableCsrfValidation) {
@@ -407,24 +415,6 @@ class Editable extends CWidget
                 $options['source'] = CHtml::normalizeUrl($this->source);
             }
         }
-
-        //TODO: language for datepicker: use yii config's value if not defined directly
-
-        /*
-         unfortunatly datepicker's format does not match Yii locale dateFormat
-         so we cannot take format from application locale
-
-         see http://www.unicode.org/reports/tr35/#Date_Format_Patterns
-
-        if($this->type == 'date' && $this->format === null) {
-            $this->format = Yii::app()->locale->getDateFormat();
-        }
-        */
-        /*
-        if (isset($this->options['datepicker']) && !$this->options['datepicker']['language'] && yii::app()->language) {
-            $this->options['datepicker']['language'] = yii::app()->language;
-        }
-        */
 
         //callbacks
         foreach(array('validate', 'success', 'display') as $method) {
@@ -617,7 +607,8 @@ class Editable extends CWidget
     }
     
     /**
-    * Returns is autotext should be applied to widget
+    * Returns is autotext should be applied to widget: 
+    * e.g. for 'select' to display text for id
     * 
     * @param mixed $options
     * @param mixed $type

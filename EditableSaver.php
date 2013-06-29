@@ -159,10 +159,18 @@ class EditableSaver extends CComponent
         //trigger beforeUpdate event
         $this->beforeUpdate();
         $this->checkErrors();
-
+        
+        //remove virtual attributes (which NOT in DB table)
+        if(!$isMongo) {
+            $this->changedAttributes = array_intersect($this->changedAttributes, $originalModel->attributeNames()); 
+            if(count($this->changedAttributes) == 0) {
+                //can not pass empty array in model->save() method!
+                $this->changedAttributes = null;
+            }
+        }
+        
         //saving (no validation, only changed attributes) note: for mongo save all!
         if ($originalModel->save(false, $isMongo ? null : $this->changedAttributes)) {
-            //trigger afterUpdate event
             $this->afterUpdate();
         } else {
             $this->error(Yii::t('EditableSaver.editable', 'Error while saving record!'));
