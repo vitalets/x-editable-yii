@@ -156,13 +156,14 @@ class EditableField extends Editable
     
     /**
     * Checks is model is instance of mongo model
+    * see: http://www.yiiframework.com/extension/yiimongodbsuite
     * 
     * @param mixed $model
     * @return bool
     */
     public static function isMongo($model) 
-    {
-    	return class_exists('EMongoEmbeddedDocument') && $model instanceof EMongoEmbeddedDocument;
+    {   
+    	return in_array('EMongoEmbeddedDocument', class_parents($model, false));
 	}
 	
     /**
