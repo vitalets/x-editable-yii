@@ -41,6 +41,11 @@ class EditableColumn extends CDataColumn
     {
         $isModel = $data instanceOf CModel;
         
+        if($this->value !== null)
+            $value = $this->evaluateExpression($this->value, array('data' => $data,'row' => $row));
+        else
+            $value = $this->value;
+
         if($isModel) {
             $widgetClass = 'EditableField';
             $options = array(
@@ -49,7 +54,7 @@ class EditableColumn extends CDataColumn
             );
             
             //flag to pass `text` option into widget
-            $passText = strlen($this->value);     
+            $passText = strlen($value);     
         } else {
             $widgetClass = 'Editable';
             $options = array(
@@ -59,7 +64,7 @@ class EditableColumn extends CDataColumn
             
             $passText = true;
             //if autotext will be applied, do not pass text param
-            if(!strlen($this->value) && Editable::isAutotext($this->editable, isset($this->editable['type']) ? $this->editable['type'] : '')) {
+            if(!strlen($value) && Editable::isAutotext($this->editable, isset($this->editable['type']) ? $this->editable['type'] : '')) {
                $options['value'] = $data[$this->name]; 
                $passText = false;
             } 
