@@ -48,8 +48,9 @@ class EditableColumn extends CDataColumn
                 'attribute'    => empty($this->editable['attribute']) ? $this->name : $this->editable['attribute'],
             );
             
-            //flag to pass `text` option into widget
-            $passText = strlen($this->value);     
+            //if value defined in column config --> we should evaluate it 
+            //and pass to widget via `text` option: set flag `passText` = true 
+            $passText = !empty($this->value);     
         } else {
             $widgetClass = 'Editable';
             $options = array(
@@ -59,7 +60,7 @@ class EditableColumn extends CDataColumn
             
             $passText = true;
             //if autotext will be applied, do not pass `text` option (pass `value` instead)
-            if(!strlen($this->value) && Editable::isAutotext($this->editable, isset($this->editable['type']) ? $this->editable['type'] : '')) {
+            if(empty($this->value) && Editable::isAutotext($this->editable, isset($this->editable['type']) ? $this->editable['type'] : '')) {
                $options['value'] = $data[$this->name]; 
                $passText = false;
             } 
