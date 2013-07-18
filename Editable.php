@@ -83,7 +83,7 @@ class Editable extends CWidget
     
     /**
     * @var string Strategy for sending data on server. Can be `auto|always|never`.
-    * When 'auto' data will be sent on server **only if pk and url defined**, otherwise new value will be stored locally.
+    * When 'auto' data will be sent on server only if **pk** and **url** defined, otherwise new value will be stored locally.
     * @see x-editable
     */
     public $send = null;  
