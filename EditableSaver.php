@@ -107,18 +107,20 @@ class EditableSaver extends CComponent
         if (empty($this->attribute)) {
             throw new CException(Yii::t('EditableSaver.editable','Property "attribute" should be defined.'));
         }
-        if (empty($this->primaryKey)) {
-            throw new CException(Yii::t('EditableSaver.editable','Property "primaryKey" should be defined.'));
-        }
-
+        
         $this->model = new $this->modelClass();
         
+        $isFormModel = $this->model instanceOf CFormModel;
         $isMongo = EditableField::isMongo($this->model);
+        
+        if (empty($this->primaryKey) && !$isFormModel) {
+            throw new CException(Yii::t('EditableSaver.editable','Property "primaryKey" should be defined.'));
+        }
         
         //loading model
         if($isMongo) {
         	$this->model = $this->model->findByPk(new MongoID($this->primaryKey));
-		} else {
+		} elseif(!$isFormModel) {
 			$this->model = $this->model->findByPk($this->primaryKey);
 		}
         
@@ -170,7 +172,14 @@ class EditableSaver extends CComponent
         }
         
         //saving (no validation, only changed attributes) note: for mongo save all!
-        if ($originalModel->save(false, $isMongo ? null : $this->changedAttributes)) {
+        if($isMongo) {
+            $result = $originalModel->save(false, null);
+        } elseif(!$isFormModel) {
+            $result = $originalModel->save(false, $this->changedAttributes);
+        } else {
+            $result = true;
+        } 
+        if ($result) {
             $this->afterUpdate();
         } else {
             $this->error(Yii::t('EditableSaver.editable', 'Error while saving record!'));

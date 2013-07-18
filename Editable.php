@@ -79,7 +79,14 @@ class Editable extends CWidget
     * @var string visibility of buttons. Can be boolean `false|true` or string `bottom`.
     * @see x-editable
     */
-    public $showbuttons = null;    
+    public $showbuttons = null;   
+    
+    /**
+    * @var string Strategy for sending data on server. Can be `auto|always|never`.
+    * When 'auto' data will be sent on server **only if pk and url defined**, otherwise new value will be stored locally.
+    * @see x-editable
+    */
+    public $send = null;  
     
     /**
     * @var boolean will editable be initially disabled. It means editable plugin will be applied to element,
@@ -390,8 +397,22 @@ class Editable extends CWidget
         }        
 
         //simple options set directly from config
-        foreach(array('url', 'type', 'mode', 'placement', 'emptytext', 'params', 'inputclass', 'format', 'viewformat', 'template',
-                      'combodate', 'select2', 'viewseparator', 'showbuttons'
+        foreach(array(
+            'url', 
+            'type', 
+            'mode', 
+            'placement', 
+            'emptytext', 
+            'params', 
+            'inputclass', 
+            'format', 
+            'viewformat', 
+            'template',
+            'combodate', 
+            'select2', 
+            'viewseparator', 
+            'showbuttons',
+            'send',
                ) as $option) {
             if ($this->$option !== null) {
                 $options[$option] = $this->$option;
@@ -581,7 +602,7 @@ class Editable extends CWidget
 
     public function getSelector()
     {
-        //for live updates selectorshould not contain pk
+        //for live updates selector should not contain pk
         if($this->liveTarget) {
             return $this->name;
         }

@@ -28,7 +28,7 @@ class EditableField extends Editable
    
     /**
     * @var instance of model that is created always:
-    * E.g. if related model does not exist, it will be `newed` to be able tp get Attribute label, etc
+    * E.g. if related model does not exist, it will be `newed` to be able to get Attribute label, etc
     * for live update. 
     */
     private $staticModel = null;
@@ -62,8 +62,10 @@ class EditableField extends Editable
         $resolved = $this->resolveModels($this->model, $this->attribute);
         $this->model = $resolved['model'];
         $this->attribute = $resolved['attribute'];
-        $staticModel = $resolved['staticModel'];
+        $this->staticModel = $resolved['staticModel'];
+        $staticModel = $this->staticModel;
         $isMongo = $resolved['isMongo'];
+        $isFormModel = $this->model instanceOf CFormModel;
         
         //if real (related) model not exists --> just print text
         if(!$this->model) {
@@ -84,7 +86,7 @@ class EditableField extends Editable
         */
         if ($this->type === null) {
             $this->type = 'text';
-            if (!$isMongo && array_key_exists($this->attribute, $staticModel->tableSchema->columns)) {
+            if (!$isMongo && !$isFormModel && array_key_exists($this->attribute, $staticModel->tableSchema->columns)) {
                 $dbType = $staticModel->tableSchema->columns[$this->attribute]->dbType;
                 if($dbType == 'date') {
                     $this->type = 'date';
@@ -105,9 +107,16 @@ class EditableField extends Editable
         
         //pk (for mongo takes pk from parent!)
         $pkModel = $isMongo ? $originalModel : $this->model; 
-        if($pkModel && !$pkModel->isNewRecord) {
-            $this->pk = $pkModel->primaryKey;
-        }       
+        if(!$isFormModel) {
+            if($pkModel && !$pkModel->isNewRecord) {
+                $this->pk = $pkModel->primaryKey;
+            }
+        } else {
+            //formModel does not have pk, so set `send` option to `always` (send without pk)
+            if(empty($this->send) && empty($this->options['send'])) {
+                $this->send = 'always';
+            }
+        }      
         
         parent::init();        
         
