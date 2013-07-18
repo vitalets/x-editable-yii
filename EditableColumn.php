@@ -58,7 +58,7 @@ class EditableColumn extends CDataColumn
             );
             
             $passText = true;
-            //if autotext will be applied, do not pass text param
+            //if autotext will be applied, do not pass `text` option (pass `value` instead)
             if(!strlen($this->value) && Editable::isAutotext($this->editable, isset($this->editable['type']) ? $this->editable['type'] : '')) {
                $options['value'] = $data[$this->name]; 
                $passText = false;
