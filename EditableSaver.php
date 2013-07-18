@@ -101,7 +101,7 @@ class EditableSaver extends CComponent
         $this->primaryKey = yii::app()->request->getParam('pk');
         $this->attribute = yii::app()->request->getParam('name');
         $this->value = yii::app()->request->getParam('value');
-        $this->scenario = yii::app()->request->getParam('scenario', 'editable');
+        $this->scenario = yii::app()->request->getParam('scenario');
 
         //checking params
         if (empty($this->attribute)) {
@@ -132,7 +132,7 @@ class EditableSaver extends CComponent
         //keep parent model for mongo
         $originalModel = $this->model;
         
-        //for mongo we should resolve model to check attribute safety
+        //resolve model only for mongo! we should check attribute safety
         if($isMongo) {
 			$resolved = EditableField::resolveModels($this->model, $this->attribute);
 			$this->model = $resolved['model']; //can be related model now
@@ -143,7 +143,9 @@ class EditableSaver extends CComponent
 		}
 
         //set scenario for main model
-        $originalModel->setScenario($this->scenario);
+        if($this->scenario) {
+            $originalModel->setScenario($this->scenario);
+        }
 
         //is attribute safe
         if (!$this->model->isAttributeSafe($this->attribute)) {
