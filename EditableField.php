@@ -33,6 +33,55 @@ class EditableField extends Editable
     */
     private $staticModel = null;
     
+    
+    /**
+    * Prepare text for different type
+    *
+    */
+     protected function getOriginalText(){
+        $attrValue = CHtml::value($this->model, $this->attribute);
+        switch($this->type){
+            case 'text':{
+                return strlen($this->text) ? $this->text : $attrValue;
+                break;
+            }
+            case 'textarea':{
+                return strlen($this->text) ? $this->text : $attrValue;
+                break;
+            }
+            case 'select':{
+                if(isset($this->source[$attrValue])){
+                    return $this->source[$attrValue];
+                }else{
+                    return "";
+                }
+                break;
+            }
+            case 'checklist':{
+                $rez = "";
+                $arr = $attrValue;
+                if(count($arr)>0){
+                    if(is_string($arr) || is_numeric($arr)){
+                        $arr = array($arr);
+                    }
+                    reset($arr);
+                    while (list($key, $val) = each($arr)) {
+                        if(isset($this->source[$val])){
+                            $rez .= $this->source[$val]."\n";
+                        }
+                    }
+                }
+                return $rez;
+                break;
+            }
+            default:{
+                strlen($this->text) ? $this->text : $attrValue;
+            }
+
+        }
+    }
+    
+    
     /**
     * initialization of widget
     *
@@ -49,7 +98,18 @@ class EditableField extends Editable
 
         $originalModel = $this->model;
         $originalAttribute = $this->attribute;
-        $originalText = strlen($this->text) ? $this->text : CHtml::value($this->model, $this->attribute);
+
+
+
+
+        //try to resolve related model (if attribute contains '.')
+        $resolved = $this->resolveModels($this->model, $this->attribute);
+        $this->model = $resolved['model'];
+        $this->attribute = $resolved['attribute'];
+        $staticModel = $resolved['staticModel'];
+        $isMongo = $resolved['isMongo'];
+
+        $originalText = $this->getOriginalText();
 
         //if apply set manually to false --> just render text, no js plugin applied
         if($this->apply === false) {
@@ -58,13 +118,6 @@ class EditableField extends Editable
             $this->apply = true;
         }
 
-        //try to resolve related model (if attribute contains '.')
-        $resolved = $this->resolveModels($this->model, $this->attribute);
-        $this->model = $resolved['model'];
-        $this->attribute = $resolved['attribute'];
-        $staticModel = $resolved['staticModel'];
-        $isMongo = $resolved['isMongo'];
-        
         //if real (related) model not exists --> just print text
         if(!$this->model) {
         	$this->apply = false;
@@ -122,9 +175,13 @@ class EditableField extends Editable
         
         //set value directly for autotext generation
         if($this->model && $this->_prepareToAutotext) {
-            $this->value = CHtml::value($this->model, $this->attribute); 
+           // $this->value = $this->model->getAttribute($this->attribute);
+            $this->value = $this->model->{($this->attribute)};
+            if(is_array($this->value) ){
+                $this->value = implode(',', $this->value);
+            }
         }
-        
+
         //generate title from attribute label
         if ($this->title === null) {
             $titles = array(
