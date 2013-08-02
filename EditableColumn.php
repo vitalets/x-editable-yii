@@ -82,6 +82,15 @@ class EditableColumn extends CDataColumn
         //apply may be a string expression, see https://github.com/vitalets/x-editable-yii/issues/33
         if (isset($options['apply']) && is_string($options['apply'])) {
             $options['apply'] = $this->evaluateExpression($options['apply'], array('data'=>$data, 'row'=>$row));
+        }
+
+        // add additional data for source link requests
+        if (isset($options['additional_data']) && is_array($options['additional_data'])) {
+            foreach($options['additional_data'] as $data_key => $data_value_expression)
+            {
+                if(is_string($data_value_expression))
+                    $options['additional_data'][$data_key] = $this->evaluateExpression($data_value_expression, array('data'=>$data, 'row'=>$row));
+            }
         }           
         
         $this->grid->controller->widget($widgetClass, $options);
