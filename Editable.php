@@ -450,9 +450,16 @@ class Editable extends CWidget
                 $options[$method]=(strpos($this->$method, 'js:') !== 0 ? 'js:' : '') . $this->$method;
             }
         }
-
+        
         //merging options
         $this->options = CMap::mergeArray($this->options, $options);
+        
+        //i18n for `clear` in date and datetime
+        if($this->type == 'date' || $this->type == 'datetime') {
+            if(!isset($this->options['clear'])) {
+                $this->options['clear'] = Yii::t('EditableField.editable', 'x clear');
+            }
+        }
     }
 
     public function registerClientScript()
