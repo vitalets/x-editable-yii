@@ -35,10 +35,6 @@ class Editable extends CWidget
     */
     public $pk = null; 
     /**
-    * @var array additional data to send to server via get to source url requets
-    */
-    public $additional_data=null;
-    /**
     * @var string name of field
     * @see x-editable
     */
@@ -270,7 +266,8 @@ class Editable extends CWidget
     public $options = array();
 
     /**
-    * @var array HTML options of element
+    * @var array HTML options of element. In `EditableColumn` htmlOptions are PHP expressions 
+    * so you can use `$data` to bind values to particular cell, e.g. `'data-categoryID' => '$data->categoryID'`.
     */
     public $htmlOptions = array();
 
@@ -340,15 +337,6 @@ class Editable extends CWidget
            $htmlOptions['data-pk'] = is_array($this->pk) ? CJSON::encode($this->pk) : $this->pk; 
         }
 
-        // set additional_data
-        if($this->additional_data && is_array($this->additional_data))
-        {
-            foreach($this->additional_data as $data_key => $data_value)    
-            {
-                $htmlOptions['data-'.$data_key] = is_array($data_value) ? CJSON::encode($data_value) : $data_value;
-            }
-        }
-
         //if input type assumes autotext (e.g. select) we define value directly in data-value 
         //and do not fill element contents
         if ($this->_prepareToAutotext) {
@@ -383,6 +371,12 @@ class Editable extends CWidget
 
         //merging options
         $this->htmlOptions = CMap::mergeArray($this->htmlOptions, $htmlOptions);
+        
+        //convert arrays to json string, otherwise yii can not render it: 
+        //"htmlspecialchars() expects parameter 1 to be string, array given"  
+        foreach($this->htmlOptions as $k => $v) {
+            $this->htmlOptions[$k] = is_array($v) ? CJSON::encode($v) : $v;
+        }
     }
 
     public function buildJsOptions()

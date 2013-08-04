@@ -85,12 +85,13 @@ class EditableColumn extends CDataColumn
             $options['apply'] = $this->evaluateExpression($options['apply'], array('data'=>$data, 'row'=>$row));
         }
 
-        // add additional data for source link requests
-        if (isset($options['additional_data']) && is_array($options['additional_data'])) {
-            foreach($options['additional_data'] as $data_key => $data_value_expression)
-            {
-                if(is_string($data_value_expression))
-                    $options['additional_data'][$data_key] = $this->evaluateExpression($data_value_expression, array('data'=>$data, 'row'=>$row));
+        //evaluate htmlOptions inside editable config as they can depend on $data
+        //see https://github.com/vitalets/x-editable-yii/issues/40
+        if (isset($options['htmlOptions']) && is_array($options['htmlOptions'])) {
+            foreach($options['htmlOptions'] as $k => $v) {
+                if(is_string($v) && (strpos($v, '$data') !== false || strpos($v, '$row') !== false)) {
+                    $options['htmlOptions'][$k] = $this->evaluateExpression($v, array('data'=>$data, 'row'=>$row));
+                }
             }
         }           
         
