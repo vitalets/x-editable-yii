@@ -3,6 +3,7 @@ X-editable-yii changelog
 
 Version 1.3.1  wip
 ----------------------------
+[enh #40] evaluate htmlOptions for EditableColumn (horizons2, vitalets)
 [enh #57] added support for CFormModel (vitalets)
 [enh #55] support of inline functions in column value (vitalets)
 
