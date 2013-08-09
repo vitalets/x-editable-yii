@@ -42,18 +42,18 @@ class EditableField extends Editable
         $attrValue = CHtml::value($this->model, $this->attribute);
         switch($this->type){
             case 'text':{
-                return strlen($this->text) ? $this->text : $attrValue;
+                $rez = strlen($this->text) ? $this->text : $attrValue;
                 break;
             }
             case 'textarea':{
-                return strlen($this->text) ? $this->text : $attrValue;
+                $rez = strlen($this->text) ? $this->text : $attrValue;
                 break;
             }
             case 'select':{
                 if(isset($this->source[$attrValue])){
-                    return $this->source[$attrValue];
+                    $rez = $this->source[$attrValue];
                 }else{
-                    return "";
+                    $rez = "";
                 }
                 break;
             }
@@ -71,14 +71,14 @@ class EditableField extends Editable
                         }
                     }
                 }
-                return $rez;
                 break;
             }
             default:{
-                strlen($this->text) ? $this->text : $attrValue;
+                $rez = strlen($this->text) ? $this->text : $attrValue;
             }
 
         }
+         return $rez;
     }
     
     
@@ -109,27 +109,17 @@ class EditableField extends Editable
         $staticModel = $resolved['staticModel'];
         $isMongo = $resolved['isMongo'];
 
-        $originalText = $this->getOriginalText();
 
         //if apply set manually to false --> just render text, no js plugin applied
-        if($this->apply === false) {
-            $this->text = $originalText;
-        } else {
+        if($this->apply !== false ) {
             $this->apply = true;
         }
 
         //if real (related) model not exists --> just print text
-        if(!$this->model) {
-        	$this->apply = false;
-        	$this->text = $originalText;
-		}
-        
-        
         //for security reason only safe attributes can be editable (e.g. defined in rules of model)
         //just print text (see 'run' method)
-        if (!$staticModel->isAttributeSafe($this->attribute)) {
+        if(!$this->model || !$staticModel->isAttributeSafe($this->attribute)) {
             $this->apply = false;
-            $this->text = $originalText;
         }
         
         /*
@@ -169,14 +159,17 @@ class EditableField extends Editable
          For lists keep it empty to apply autotext.
          $this->_prepareToAutotext calculated in parent class Editable.php
         */
-        if (!strlen($this->text) && !$this->_prepareToAutotext) {
-            $this->text = $originalText;
+        if (((!isset($this->text)) || ($this->apply===false))
+                || (!strlen($this->text) && !$this->_prepareToAutotext)
+            ){
+            $this->text = $this->getOriginalText();
         }
-        
+
+
+
         //set value directly for autotext generation
         if($this->model && $this->_prepareToAutotext) {
-           // $this->value = $this->model->getAttribute($this->attribute);
-            $this->value = $this->model->{($this->attribute)};
+            $this->value = CHtml::value($this->model, $this->attribute);
             if(is_array($this->value) ){
                 $this->value = implode(',', $this->value);
             }
