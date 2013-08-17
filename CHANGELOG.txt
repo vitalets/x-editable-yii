@@ -3,6 +3,7 @@ X-editable-yii changelog
 
 Version 1.3.1  wip
 ----------------------------
+[enh #63] allow usage with EDataTables (vitalets, faravaghi)
 [bug #66] date & datetime are not processed if passed as timestamp string (vitalets)
 [enh #19] i18n support for "clear" in date & datetime (vitalets)
 [enh #40] evaluate htmlOptions for EditableColumn (horizons2, vitalets)

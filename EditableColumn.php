@@ -36,8 +36,8 @@ class EditableColumn extends CDataColumn
         Editable::attachAjaxUpdateEvent($this->grid);
     }
    
-    
-    protected function renderDataCellContent($row, $data)
+    //protected was removed due to https://github.com/vitalets/x-editable-yii/issues/63
+    public function renderDataCellContent($row, $data)
     {
         $isModel = $data instanceOf CModel;
         
