@@ -322,6 +322,18 @@ class Editable extends CWidget
         and value will be rendered to data-value attribute to apply autotext afterwards.
         */
         $this->_prepareToAutotext = self::isAutotext($this->options, $this->type);
+        
+        /*
+        For `date` and `datetime` we need format to be on php side to make conversions.
+        But we can not set default format as datepicker and combodate has different formats.
+        So do it here:
+        */
+        if (!$this->format && $this->type == 'date') {
+            $this->format = 'yyyy-mm-dd';
+        }
+        if (!$this->format && $this->type == 'datetime') {
+            $this->format = 'yyyy-mm-dd hh:ii:ss';
+        }
     }
 
     public function buildHtmlOptions()
@@ -341,16 +353,9 @@ class Editable extends CWidget
         //and do not fill element contents
         if ($this->_prepareToAutotext) {
             //for date we use 'format' to put it into value (if text not defined)
-            if ($this->type == 'date' || $this->type == 'datetime') {   
+            if ($this->type == 'date' || $this->type == 'datetime') {
                 //if date comes as object OR timestamp, format it to string
                 if($this->value instanceOf DateTime || is_long($this->value) || (is_string($this->value) && ctype_digit($this->value))) {
-                    /*
-                    We can not set default format as datepicker and combodate has different formats.
-                    but fortunatly bootstrap datepicker and jquery-ui datepicker has compatible formats.
-                    */
-                    if(!$this->format) {
-                       $this->format = $this->type == 'date' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss';
-                    }
                     /*
                     * unfortunatly bootstrap datepicker's format does not match 
                     * Yii locale dateFormat, we need replacements below to convert 
