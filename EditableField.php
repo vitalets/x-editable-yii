@@ -57,6 +57,20 @@ class EditableField extends Editable
                 }
                 break;
             }
+            case 'select2':{
+                $value = null;
+                foreach($this->source as $val){
+                    if($val['id'] == $attrValue){
+                        $value = $val['text'];
+                    }
+                }
+                if(isset($value)){
+                    $rez = $value;
+                }else{
+                    $rez = "";
+                }
+                break;
+            }
             case 'checklist':{
                 $rez = "";
                 $arr = $attrValue;
@@ -74,7 +88,7 @@ class EditableField extends Editable
                 break;
             }
             default:{
-                $rez = strlen($this->text) ? $this->text : $attrValue;
+                $rez = null;
             }
 
         }

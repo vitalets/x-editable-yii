@@ -333,9 +333,9 @@ class Editable extends CWidget
         //and do not fill element contents
         if ($this->_prepareToAutotext) {
             //for date we use 'format' to put it into value (if text not defined)
-            if ($this->type == 'date') {
+            if ($this->type == 'date' || $this->type == 'datetime') {
                 //if date comes as object, format it to string
-                if($this->value instanceOf DateTime || is_long($this->value)) {
+                if($this->value instanceOf DateTime || is_long((int)$this->value)) {
                     /*
                     * unfortunatly datepicker's format does not match Yii locale dateFormat,
                     * we need replacements below to convert date correctly
