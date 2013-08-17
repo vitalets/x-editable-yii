@@ -341,18 +341,46 @@ class Editable extends CWidget
         //and do not fill element contents
         if ($this->_prepareToAutotext) {
             //for date we use 'format' to put it into value (if text not defined)
-            if ($this->type == 'date') {
-                //if date comes as object, format it to string
-                if($this->value instanceOf DateTime || is_long($this->value)) {
+            if ($this->type == 'date' || $this->type == 'datetime') {   
+                //if date comes as object OR timestamp, format it to string
+                if($this->value instanceOf DateTime || is_long($this->value) || (is_string($this->value) && ctype_digit($this->value))) {
                     /*
-                    * unfortunatly datepicker's format does not match Yii locale dateFormat,
-                    * we need replacements below to convert date correctly
+                    We can not set default format as datepicker and combodate has different formats.
+                    but fortunatly bootstrap datepicker and jquery-ui datepicker has compatible formats.
                     */
+                    if(!$this->format) {
+                       $this->format = $this->type == 'date' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss';
+                    }
+                    /*
+                    * unfortunatly bootstrap datepicker's format does not match 
+                    * Yii locale dateFormat, we need replacements below to convert 
+                    * date correctly.
+                    * 
+                    * Yii format: 
+                    * http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns
+                    * 
+                    * Datepicker format: 
+                    * https://github.com/eternicode/bootstrap-datepicker#format
+                    * 
+                    * Datetimepicker format: 
+                    * https://github.com/smalot/bootstrap-datetimepicker#format 
+                    */
+                    //months: M --> MMM, m --> M
                     $count = 0;
                     $format = str_replace('MM', 'MMMM', $this->format, $count);
                     if(!$count) $format = str_replace('M', 'MMM', $format, $count);
                     if(!$count) $format = str_replace('m', 'M', $format);
-                    
+                    if($this->type == 'datetime') {
+                        //minutes: i --> m
+                        $format = str_replace('i', 'm', $format); 
+                        //hours: h --> H, H --> h
+                        $count = 0;
+                        $format = str_replace('h', 'H', $format, $count);
+                        if(!$count) {
+                            $format = str_replace('H', 'h', $format);                        
+                        }
+                    }
+                                        
                     if($this->value instanceof DateTime) {
                         $timestamp = $this->value->getTimestamp();
                     } else {
