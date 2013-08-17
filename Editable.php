@@ -640,11 +640,7 @@ class Editable extends CWidget
 
     public function renderText()
     {
-        $encodedText = $this->encode ? CHtml::encode($this->text) : $this->text;
-        if($this->type == 'textarea') {
-             $encodedText = preg_replace('/\r?\n/', '<br>', $encodedText);
-        }
-        echo $encodedText;
+        echo $this->encode ? CHtml::encode($this->text) : $this->text;
     }
 
     public function getSelector()
