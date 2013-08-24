@@ -93,6 +93,16 @@ class EditableColumn extends CDataColumn
                     $options['htmlOptions'][$k] = $this->evaluateExpression($v, array('data'=>$data, 'row'=>$row));
                 }
             }
+        }
+        
+        //evaluate `params` as they can depend on $data
+        //see https://github.com/vitalets/x-editable-yii/issues/65
+        if (isset($options['params']) && is_array($options['params'])) {
+            foreach($options['params'] as $k => $v) {
+                if(is_string($v) && (strpos($v, '$data') !== false || strpos($v, '$row') !== false)) {
+                    $options['params'][$k] = $this->evaluateExpression($v, array('data'=>$data, 'row'=>$row));
+                }
+            }
         }           
         
         $this->grid->controller->widget($widgetClass, $options);
