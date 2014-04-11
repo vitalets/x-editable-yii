@@ -436,6 +436,10 @@ class Editable extends CWidget
             }
         }        
 
+        if(empty($this->emptytext)){
+            $this->emptytext = Yii::t('EditableSaver.editable', 'Empty');
+        }
+        
         //simple options set directly from config
         foreach(array(
             'url', 
@@ -539,8 +543,8 @@ class Editable extends CWidget
         // bootstrap
         if($form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
-                $bootstrap->registerCoreCss();
-                $bootstrap->registerCoreScripts();
+                //$bootstrap->registerCoreCss();
+                //$bootstrap->registerCoreScripts();
             } else {
                 throw new CException('You need to setup Yii-bootstrap extension first.');
             }
