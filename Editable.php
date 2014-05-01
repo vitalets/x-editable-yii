@@ -540,11 +540,16 @@ class Editable extends CWidget
         $form = yii::app()->editable->form;
         $mode = $this->mode ? $this->mode : yii::app()->editable->defaults['mode'];
 
+        // YII bootstrap
+        if($form === EditableConfig::FORM_YII_BOOTSTRAP) {
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable'));
+            $js = 'bootstrap-editable.js';
+            $css = 'bootstrap-editable.css';
         // bootstrap
-        if($form === EditableConfig::FORM_BOOTSTRAP) {
+        }elseif($form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
-                //$bootstrap->registerCoreCss();
-                //$bootstrap->registerCoreScripts();
+                $bootstrap->registerCoreCss();
+                $bootstrap->registerCoreScripts();
             } else {
                 throw new CException('You need to setup Yii-bootstrap extension first.');
             }

@@ -10,6 +10,8 @@
 
 class EditableConfig extends CApplicationComponent
 {
+
+    const FORM_YII_BOOTSTRAP = 'yii_bootstrap';
     const FORM_BOOTSTRAP = 'bootstrap';
     const FORM_JQUERYUI = 'jqueryui';
     const FORM_PLAIN = 'plain';
