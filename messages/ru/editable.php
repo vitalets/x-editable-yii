@@ -10,4 +10,5 @@ return array (
   'Select'    => 'Выберите',
   'Pick'      => 'Укажите',
   'x clear'   => 'очистить',
+  'Error while saving record!'=>'Ошибка при сохранении запись!',    
 );
