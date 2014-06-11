@@ -436,6 +436,10 @@ class Editable extends CWidget
             }
         }        
 
+        if(empty($this->emptytext)){
+            $this->emptytext = Yii::t('EditableSaver.editable', 'Empty');
+        }
+        
         //simple options set directly from config
         foreach(array(
             'url', 
@@ -536,8 +540,13 @@ class Editable extends CWidget
         $form = yii::app()->editable->form;
         $mode = $this->mode ? $this->mode : yii::app()->editable->defaults['mode'];
 
+        // YII bootstrap
+        if($form === EditableConfig::FORM_YII_BOOTSTRAP) {
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable'));
+            $js = 'bootstrap-editable.js';
+            $css = 'bootstrap-editable.css';
         // bootstrap
-        if($form === EditableConfig::FORM_BOOTSTRAP) {
+        }elseif($form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
                 $bootstrap->registerCoreCss();
                 $bootstrap->registerCoreScripts();
