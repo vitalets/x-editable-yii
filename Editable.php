@@ -548,8 +548,14 @@ class Editable extends CWidget
         // bootstrap
         }elseif($form === EditableConfig::FORM_BOOTSTRAP) {
             if (($bootstrap = yii::app()->getComponent('bootstrap'))) {
-                $bootstrap->registerCoreCss();
-                $bootstrap->registerCoreScripts();
+
+                // support Bootstrap component's internal config if someone wanted to turn things off
+                if ($bootstrap->coreCss !== false) {
+                    $bootstrap->registerCoreCss();
+                }
+                if ($bootstrap->enableJS !== false) {
+                    $bootstrap->registerCoreScripts();
+                }
             } else {
                 throw new CException('You need to setup Yii-bootstrap extension first.');
             }
