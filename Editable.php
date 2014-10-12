@@ -563,6 +563,12 @@ class Editable extends CWidget
             $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable'));
             $js = 'bootstrap-editable.js';
             $css = 'bootstrap-editable.css';
+        // presume-bootstrap
+        }elseif($form === EditableConfig::PRESUME_BOOTSTRAP) {
+			// It is assumed that bootstrap is manually added to the page.
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable'));
+            $js = 'bootstrap-editable.js';
+            $css = 'bootstrap-editable.css';
         // jqueryui
         } elseif($form === EditableConfig::FORM_JQUERYUI) {
             if($mode === EditableConfig::POPUP && Yii::getVersion() < '1.1.13' ) {
