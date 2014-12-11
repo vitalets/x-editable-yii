@@ -542,7 +542,7 @@ class Editable extends CWidget
 
         // YII bootstrap
         if($form === EditableConfig::FORM_YII_BOOTSTRAP) {
-            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable'));
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('ext.x-editable.assets.bootstrap-editable'));
             $js = 'bootstrap-editable.js';
             $css = 'bootstrap-editable.css';
         // bootstrap
@@ -554,7 +554,7 @@ class Editable extends CWidget
                 throw new CException('You need to setup Yii-bootstrap extension first.');
             }
 
-            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-editable'));
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('ext.x-editable.assets.bootstrap-editable'));
             $js = 'bootstrap-editable.js';
             $css = 'bootstrap-editable.css';
         // jqueryui
@@ -566,18 +566,18 @@ class Editable extends CWidget
             //register jquery ui
             $this->registerJQueryUI();
 
-            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jqueryui-editable'));
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('ext.x-editable.assets.jqueryui-editable'));
             $js = 'jqueryui-editable.js';
             $css = 'jqueryui-editable.css';
         // plain jQuery
         } else {
-            $assetsUrl = $am->publish(Yii::getPathOfAlias('editable.assets.jquery-editable'));
+            $assetsUrl = $am->publish(Yii::getPathOfAlias('ext.x-editable.assets.jquery-editable'));
             $js = 'jquery-editable-poshytip.js';
             $css = 'jquery-editable.css';
 
             //publish & register poshytip for popup version
             if($mode === EditableConfig::POPUP) {
-                $poshytipUrl = $am->publish(Yii::getPathOfAlias('editable.assets.poshytip'));
+                $poshytipUrl = $am->publish(Yii::getPathOfAlias('ext.x-editable.assets.poshytip'));
                 $cs->registerScriptFile($poshytipUrl . '/jquery.poshytip.js');
                 $cs->registerCssFile($poshytipUrl . '/tip-yellowsimple/tip-yellowsimple.css');
             }
@@ -594,20 +594,20 @@ class Editable extends CWidget
 
         //include moment.js for combodate 
         if($this->type == 'combodate') {
-            $momentUrl = $am->publish(Yii::getPathOfAlias('editable.assets.moment'));
+            $momentUrl = $am->publish(Yii::getPathOfAlias('ext.x-editable.assets.moment'));
             $cs->registerScriptFile($momentUrl.'/moment.min.js');          
         }
         
         //include select2 lib for select2 type
         if($this->type == 'select2') {
-            $select2Url = $am->publish(Yii::getPathOfAlias('editable.assets.select2'));
+            $select2Url = $am->publish(Yii::getPathOfAlias('ext.x-editable.assets.select2'));
             $cs->registerScriptFile($select2Url.'/select2.min.js');  
             $cs->registerCssFile($select2Url.'/select2.css');        
         }  
         
         //include bootstrap-datetimepicker
         if($this->type == 'datetime') {
-            $url = $am->publish(Yii::getPathOfAlias('editable.assets.bootstrap-datetimepicker'));
+            $url = $am->publish(Yii::getPathOfAlias('ext.x-editable.assets.bootstrap-datetimepicker'));
             $cs->registerScriptFile($url.'/js/bootstrap-datetimepicker.js');  
             $cs->registerCssFile($url.'/css/datetimepicker.css');        
         }               

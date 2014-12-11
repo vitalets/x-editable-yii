@@ -8,7 +8,7 @@
  * @version 1.3.1
  */
 
-Yii::import('editable.Editable');
+Yii::import('ext.x-editable.Editable');
 
 /**
  * EditableField widget makes editable single attribute of model.

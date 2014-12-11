@@ -8,7 +8,7 @@
  * @version 1.3.1
  */
 
-Yii::import('editable.EditableField');
+Yii::import('ext.x-editable.EditableField');
 Yii::import('zii.widgets.grid.CDataColumn');
 
 /**
