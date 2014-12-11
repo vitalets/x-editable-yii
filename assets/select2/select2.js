@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright 2012 Igor Vaynberg
 
 Version: 3.4.6 Timestamp: Sat Mar 22 22:30:15 EDT 2014
