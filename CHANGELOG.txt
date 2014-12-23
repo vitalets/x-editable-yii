@@ -1,9 +1,10 @@
 X-editable-yii changelog
 ============================
 
-Version 1.3.2  wip
+Version 1.3.2  Dec 23, 2014
 ----------------------------
 [enh #65] treat `params` as php expression for EditableColumn (vitalets)
+[bug #116]  Memory leak in EditableColumn (Julian-B90)
 
 
 Version 1.3.1  Aug 17, 2013
