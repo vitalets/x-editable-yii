@@ -5,7 +5,7 @@
  * @author Vitaliy Potapov <noginsk@rambler.ru>
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
- * @version 1.3.1
+ * @version 1.3.2
  */
 
 Yii::import('ext.x-editable.EditableField');

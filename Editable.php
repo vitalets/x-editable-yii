@@ -5,7 +5,7 @@
  * @author Vitaliy Potapov <noginsk@rambler.ru>
  * @link https://github.com/vitalets/x-editable-yii
  * @copyright Copyright &copy; Vitaliy Potapov 2012
- * @version 1.3.1
+ * @version 1.3.2
 */
 
 /**
@@ -524,8 +524,8 @@ class Editable extends CWidget
 
         //wrap in anonymous function for live update
         if($this->liveTarget) {
-            $script .= "\n $('body').on('ajaxUpdate.editable', function(e){ if(e.target.id == '".$this->liveTarget."') yiiEditable(); });";
-            $script = "(function yiiEditable() {\n ".$script."\n}());";
+            $script2 = "\n$('body').on('ajaxUpdate.editable',function(e){ if(e.target.id == '".$this->liveTarget."') yiiEditable2(); });";
+            $script = "(function yiiEditable() {function yiiEditable2() {\n\t$script\n} $script2 yiiEditable2(); }\n());";
         }
         
         Yii::app()->getClientScript()->registerScript(__CLASS__ . '-' . $selector, $script);
