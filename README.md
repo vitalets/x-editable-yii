@@ -1,4 +1,4 @@
-X-editable for Yii
+X-editable for Yii  
 ======================
 
 Bundle of widgets and server-side component for creating editable elements in [Yii](http://www.yiiframework.com) application.
