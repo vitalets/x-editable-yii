@@ -9,14 +9,14 @@
  */
 
 Yii::import('editable.EditableField');
-Yii::import('zii.widgets.grid.CDataColumn');
+Yii::import('bootstrap.widgets.TbDataColumn');
 
 /**
  * EditableColumn widget makes editable one column in CGridView.
  *
  * @package widgets
  */
-class EditableColumn extends CDataColumn
+class EditableColumn extends TbDataColumn
 {
     /**
     * @var array editable config options.
