@@ -322,6 +322,13 @@ Editableform is linked with one of input types, e.g. 'text', 'select' etc.
                     value: submitValue,
                     pk: pk 
                 };
+                
+                // set the options.params.attribute with the appropriate options.attribute if existing
+                for(var name in this.options.params) {
+                    if (this.options[name]!==undefined) {
+                        this.options.params[name] = this.options[name];
+                    }
+                }
 
                 //additional params
                 if(typeof this.options.params === 'function') {
