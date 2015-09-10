@@ -431,8 +431,12 @@ class Editable extends CWidget
         if (Yii::app()->request->enableCsrfValidation) {
             $csrfTokenName = Yii::app()->request->csrfTokenName;
             $csrfToken = Yii::app()->request->csrfToken;
-            if(!isset($this->params[$csrfTokenName])) {
-                $this->params[$csrfTokenName] = $csrfToken;
+            if (is_array($this->params)) {
+                if(!isset($this->params[$csrfTokenName])) {
+                    $this->params[$csrfTokenName] = $csrfToken;
+                }    
+            } else {
+                $this->HtmlOptions['data-'.$csrfTokenName] = $csrfToken;
             }
         }        
 
